@@ -1,0 +1,19 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+
+# Database
+sqlalchemy==2.0.23
+pyodbc==5.0.1
+python-dotenv==1.0.0
+
+# Settings Management
+pydantic==2.5.2
+pydantic-settings==2.1.0
+
+# Testing
+pytest==7.4.3
+httpx==0.25.2
+
+# Development
+black==23.11.0
+flake8==6.1.0 

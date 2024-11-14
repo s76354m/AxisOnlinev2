@@ -1,0 +1,779 @@
+TEST RESULTS
+================================================================================
+Date: 2024-11-13 19:05:47.237650
+================================================================================
+
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-8.3.3, pluggy-1.5.0 -- C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-3.7.1, asyncio-0.24.0, cov-6.0.0, mock-3.14.0
+asyncio: mode=Mode.STRICT, default_loop_scope=None
+collecting ... collected 33 items
+
+tests/test_basic.py::test_simple PASSED                                  [  3%]
+tests/test_basic.py::test_addition PASSED                                [  6%]
+tests/test_crud_operations.py::test_competitor_crud ERROR                [  9%]
+tests/test_crud_operations.py::test_service_area_crud ERROR              [ 12%]
+tests/test_database.py::test_database_monitor 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:41 [    INFO] Operation: TEST | Status: SUCCESS | Details: None (db_monitor.py:27)
+2024-11-13 19:05:41 [   ERROR] Operation: TEST | Error: Test error | Type: <class 'Exception'> (db_monitor.py:34)
+PASSED                                                                   [ 15%]
+tests/test_database.py::test_database_connection PASSED                  [ 18%]
+tests/test_database.py::test_table_integrity PASSED                      [ 21%]
+tests/test_db_connection.py::test_database_connection 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [raw sql] () (base.py:1848)
+2024-11-13 19:05:45 [    INFO] SELECT schema_name() (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00048s] () (base.py:1848)
+2024-11-13 19:05:45 [    INFO] SELECT CAST('test max support' AS NVARCHAR(max)) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00053s] () (base.py:1848)
+2024-11-13 19:05:45 [    INFO] SELECT 1 FROM fn_listextendedproperty(default, default, default, default, default, default, default) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00048s] () (base.py:1848)
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT 1 (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00080s] () (base.py:1848)
+2024-11-13 19:05:45 [    INFO] ROLLBACK (base.py:2692)
+PASSED                                                                   [ 24%]
+tests/test_db_monitor.py::test_database_connection_failure FAILED        [ 27%]
+tests/test_db_simple.py::test_db_connection PASSED                       [ 30%]
+tests/test_integration.py::TestDatabaseOperations::test_project_creation 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] INSERT INTO [CS_EXP_Project_Translation] ([ProjectID], [BenchmarkFileID], [ProjectType], [ProjectDesc], [Analyst], [PM], [GoLiveDate], [MaxMileage], [Status], [NewMarket], [ProvRef], [LastEditMSID], [NDB_LOB], [RefreshInd]) OUTPUT inserted.[RecordID], inserted.[DataLoadDate], inserted.[LastEditDate] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00061s] ('TEST001', None, 'A', 'Test Project', 'Test Analyst', 'Test PM', None, None, 'New', None, None, None, None, None) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT TOP 1 [CS_EXP_Project_Translation].[RecordID] AS [CS_EXP_Project_Translation_RecordID], [CS_EXP_Project_Translation].[ProjectID] AS [CS_EXP_Project_Translation_ProjectID], [CS_EXP_Project_Translation].[BenchmarkFileID] AS [CS_EXP_Project_Translation_BenchmarkFileID], [CS_EXP_Project_Translation].[ProjectType] AS [CS_EXP_Project_Translation_ProjectType], [CS_EXP_Project_Translation].[ProjectDesc] AS [CS_EXP_Project_Translation_ProjectDesc], [CS_EXP_Project_Translation].[Analyst] AS [CS_EXP_Project_Translation_Analyst], [CS_EXP_Project_Translation].[PM] AS [CS_EXP_Project_Translation_PM], [CS_EXP_Project_Translation].[GoLiveDate] AS [CS_EXP_Project_Translation_GoLiveDate], [CS_EXP_Project_Translation].[MaxMileage] AS [CS_EXP_Project_Translation_MaxMileage], [CS_EXP_Project_Translation].[Status] AS [CS_EXP_Project_Translation_Status], [CS_EXP_Project_Translation].[NewMarket] AS [CS_EXP_Project_Translation_NewMarket], [CS_EXP_Project_Translation].[ProvRef] AS [CS_EXP_Project_Translation_ProvRef], [CS_EXP_Project_Translation].[DataLoadDate] AS [CS_EXP_Project_Translation_DataLoadDate], [CS_EXP_Project_Translation].[LastEditDate] AS [CS_EXP_Project_Translation_LastEditDate], [CS_EXP_Project_Translation].[LastEditMSID] AS [CS_EXP_Project_Translation_LastEditMSID], [CS_EXP_Project_Translation].[NDB_LOB] AS [CS_EXP_Project_Translation_NDB_LOB], [CS_EXP_Project_Translation].[RefreshInd] AS [CS_EXP_Project_Translation_RefreshInd] 
+FROM [CS_EXP_Project_Translation] 
+WHERE [CS_EXP_Project_Translation].[ProjectID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00056s] ('TEST001',) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] DELETE FROM [CS_EXP_Project_Translation] WHERE [CS_EXP_Project_Translation].[RecordID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00038s] (9,) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+PASSED                                                                   [ 33%]
+tests/test_integration.py::TestDatabaseOperations::test_competitor_creation 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] INSERT INTO [CS_EXP_Competitor_Translation] ([ProjectID], [ProjectStatus], [StrenuusProductCode], [Payor], [Product], [EI], [CS], [MR], [LastEditMSID]) OUTPUT inserted.[RecordID], inserted.[DataLoadDate] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00059s] ('TEST001', None, 'TEST', 'Test Payor', 'Test Product', 1, 0, 1, None) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT TOP 1 [CS_EXP_Competitor_Translation].[RecordID] AS [CS_EXP_Competitor_Translation_RecordID], [CS_EXP_Competitor_Translation].[ProjectID] AS [CS_EXP_Competitor_Translation_ProjectID], [CS_EXP_Competitor_Translation].[ProjectStatus] AS [CS_EXP_Competitor_Translation_ProjectStatus], [CS_EXP_Competitor_Translation].[StrenuusProductCode] AS [CS_EXP_Competitor_Translation_StrenuusProductCode], [CS_EXP_Competitor_Translation].[Payor] AS [CS_EXP_Competitor_Translation_Payor], [CS_EXP_Competitor_Translation].[Product] AS [CS_EXP_Competitor_Translation_Product], [CS_EXP_Competitor_Translation].[EI] AS [CS_EXP_Competitor_Translation_EI], [CS_EXP_Competitor_Translation].[CS] AS [CS_EXP_Competitor_Translation_CS], [CS_EXP_Competitor_Translation].[MR] AS [CS_EXP_Competitor_Translation_MR], [CS_EXP_Competitor_Translation].[DataLoadDate] AS [CS_EXP_Competitor_Translation_DataLoadDate], [CS_EXP_Competitor_Translation].[LastEditMSID] AS [CS_EXP_Competitor_Translation_LastEditMSID] 
+FROM [CS_EXP_Competitor_Translation] 
+WHERE [CS_EXP_Competitor_Translation].[ProjectID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00046s] ('TEST001',) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] DELETE FROM [CS_EXP_Competitor_Translation] WHERE [CS_EXP_Competitor_Translation].[RecordID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00044s] (7,) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+PASSED                                                                   [ 36%]
+tests/test_integration.py::TestDatabaseOperations::test_service_area_creation 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] INSERT INTO [CS_EXP_zTrxServiceArea] ([ProjectID], [Region], [State], [County], [ReportInclude], [MaxMileage], [ProjectStatus]) OUTPUT inserted.[RecordID], inserted.[DataLoadDate] VALUES (?, ?, ?, ?, ?, ?, ?) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00045s] ('TEST001', 'Test Region', 'TX', 'Test County', 'Y', 50, None) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT TOP 1 [CS_EXP_zTrxServiceArea].[RecordID] AS [CS_EXP_zTrxServiceArea_RecordID], [CS_EXP_zTrxServiceArea].[ProjectID] AS [CS_EXP_zTrxServiceArea_ProjectID], [CS_EXP_zTrxServiceArea].[Region] AS [CS_EXP_zTrxServiceArea_Region], [CS_EXP_zTrxServiceArea].[State] AS [CS_EXP_zTrxServiceArea_State], [CS_EXP_zTrxServiceArea].[County] AS [CS_EXP_zTrxServiceArea_County], [CS_EXP_zTrxServiceArea].[ReportInclude] AS [CS_EXP_zTrxServiceArea_ReportInclude], [CS_EXP_zTrxServiceArea].[MaxMileage] AS [CS_EXP_zTrxServiceArea_MaxMileage], [CS_EXP_zTrxServiceArea].[DataLoadDate] AS [CS_EXP_zTrxServiceArea_DataLoadDate], [CS_EXP_zTrxServiceArea].[ProjectStatus] AS [CS_EXP_zTrxServiceArea_ProjectStatus] 
+FROM [CS_EXP_zTrxServiceArea] 
+WHERE [CS_EXP_zTrxServiceArea].[ProjectID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00048s] ('TEST001',) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] DELETE FROM [CS_EXP_zTrxServiceArea] WHERE [CS_EXP_zTrxServiceArea].[RecordID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00051s] (6,) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+PASSED                                                                   [ 39%]
+tests/test_integration.py::TestDatabaseOperations::test_yline_creation 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] INSERT INTO [CS_EXP_YLine_Translation] ([ProjectID], [ProjectStatus], [NDB_Yline_ProdCd], [NDB_Yline_IPA], [NDB_Yline_MktNum], [LastEditMSID], [PreAward]) OUTPUT inserted.[RecordID], inserted.[DataLoadDate], inserted.[LastEditDate] VALUES (?, ?, ?, ?, ?, ?, ?) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00046s] ('TEST001', None, 'A1', 123, 456, None, 1) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT TOP 1 [CS_EXP_YLine_Translation].[RecordID] AS [CS_EXP_YLine_Translation_RecordID], [CS_EXP_YLine_Translation].[ProjectID] AS [CS_EXP_YLine_Translation_ProjectID], [CS_EXP_YLine_Translation].[ProjectStatus] AS [CS_EXP_YLine_Translation_ProjectStatus], [CS_EXP_YLine_Translation].[NDB_Yline_ProdCd] AS [CS_EXP_YLine_Translation_NDB_Yline_ProdCd], [CS_EXP_YLine_Translation].[NDB_Yline_IPA] AS [CS_EXP_YLine_Translation_NDB_Yline_IPA], [CS_EXP_YLine_Translation].[NDB_Yline_MktNum] AS [CS_EXP_YLine_Translation_NDB_Yline_MktNum], [CS_EXP_YLine_Translation].[DataLoadDate] AS [CS_EXP_YLine_Translation_DataLoadDate], [CS_EXP_YLine_Translation].[LastEditDate] AS [CS_EXP_YLine_Translation_LastEditDate], [CS_EXP_YLine_Translation].[LastEditMSID] AS [CS_EXP_YLine_Translation_LastEditMSID], [CS_EXP_YLine_Translation].[PreAward] AS [CS_EXP_YLine_Translation_PreAward] 
+FROM [CS_EXP_YLine_Translation] 
+WHERE [CS_EXP_YLine_Translation].[ProjectID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00047s] ('TEST001',) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] DELETE FROM [CS_EXP_YLine_Translation] WHERE [CS_EXP_YLine_Translation].[RecordID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00038s] (6,) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+PASSED                                                                   [ 42%]
+tests/test_integration.py::TestDatabaseOperations::test_note_creation 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] INSERT INTO [CS_EXP_ProjectNotes] ([ProjectID], [Notes], [ActionItem], [ProjectStatus], [OrigNoteMSID], [LastEditMSID], [ProjectCategory]) OUTPUT inserted.[RecordID], inserted.[DataLoadDate], inserted.[LastEditDate] VALUES (?, ?, ?, ?, ?, ?, ?) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00044s] ('TEST001', 'Test Note', 'Y', None, None, None, 'Test Category') (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT TOP 1 [CS_EXP_ProjectNotes].[RecordID] AS [CS_EXP_ProjectNotes_RecordID], [CS_EXP_ProjectNotes].[ProjectID] AS [CS_EXP_ProjectNotes_ProjectID], [CS_EXP_ProjectNotes].[Notes] AS [CS_EXP_ProjectNotes_Notes], [CS_EXP_ProjectNotes].[ActionItem] AS [CS_EXP_ProjectNotes_ActionItem], [CS_EXP_ProjectNotes].[ProjectStatus] AS [CS_EXP_ProjectNotes_ProjectStatus], [CS_EXP_ProjectNotes].[DataLoadDate] AS [CS_EXP_ProjectNotes_DataLoadDate], [CS_EXP_ProjectNotes].[LastEditDate] AS [CS_EXP_ProjectNotes_LastEditDate], [CS_EXP_ProjectNotes].[OrigNoteMSID] AS [CS_EXP_ProjectNotes_OrigNoteMSID], [CS_EXP_ProjectNotes].[LastEditMSID] AS [CS_EXP_ProjectNotes_LastEditMSID], [CS_EXP_ProjectNotes].[ProjectCategory] AS [CS_EXP_ProjectNotes_ProjectCategory] 
+FROM [CS_EXP_ProjectNotes] 
+WHERE [CS_EXP_ProjectNotes].[ProjectID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00052s] ('TEST001',) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] DELETE FROM [CS_EXP_ProjectNotes] WHERE [CS_EXP_ProjectNotes].[RecordID] = ? (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00040s] (7,) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] COMMIT (base.py:2695)
+PASSED                                                                   [ 45%]
+tests/test_project_crud.py::test_create_project ERROR                    [ 48%]
+tests/test_project_crud.py::test_get_project ERROR                       [ 51%]
+tests/test_project_crud.py::test_update_project ERROR                    [ 54%]
+tests/test_project_crud.py::test_delete_project ERROR                    [ 57%]
+tests/test_project_management.py::test_create_project FAILED             [ 60%]
+tests/test_project_management.py::test_display_project_details ERROR     [ 63%]
+tests/test_project_management.py::test_display_project_notes 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:45 [    INFO] BEGIN (implicit) (base.py:2689)
+2024-11-13 19:05:45 [    INFO] SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] 
+FROM [INFORMATION_SCHEMA].[TABLES] 
+WHERE ([INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max)) OR [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max))) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = CAST(? AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(? AS NVARCHAR(max)) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [generated in 0.00098s] ('BASE TABLE', 'VIEW', '\n        SELECT \n            RecordID,\n            ProjectID,\n            Notes,\n            ProjectStatus,\n            LastEditMSID as Author, ... (39 characters truncated) ... EditDate, 126) as NoteDate\n        FROM CS_EXP_ProjectNotes WITH (NOLOCK)\n        WHERE ProjectID = ?\n        ORDER BY LastEditDate DESC\n        ', 'dbo') (base.py:1848)
+2024-11-13 19:05:45 [    INFO] 
+        SELECT 
+            RecordID,
+            ProjectID,
+            Notes,
+            ProjectStatus,
+            LastEditMSID as Author,
+            CONVERT(VARCHAR(23), LastEditDate, 126) as NoteDate
+        FROM CS_EXP_ProjectNotes WITH (NOLOCK)
+        WHERE ProjectID = ?
+        ORDER BY LastEditDate DESC
+         (base.py:1848)
+2024-11-13 19:05:45 [    INFO] [raw sql] ('TEST001',) (base.py:1848)
+2024-11-13 19:05:45 [    INFO] ROLLBACK (base.py:2692)
+2024-11-13 19:05:45 [    INFO] Operation: project_notes | Status: SUCCESS | Details: None (db_monitor.py:27)
+FAILED                                                                   [ 66%]
+tests/test_suite.py::test_database_connection ERROR                      [ 69%]
+tests/test_suite.py::test_api_endpoints PASSED                           [ 72%]
+tests/test_suite.py::test_ui_initialization 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:46 [    INFO] AxisProgramUI initialized successfully (main.py:23)
+FAILED                                                                   [ 75%]
+tests/test_suite.py::test_project_creation_flow PASSED                   [ 78%]
+tests/test_ui.py::test_project_details_display 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:46 [    INFO] Operation: project_details | Status: SUCCESS | Details: None (db_monitor.py:27)
+FAILED                                                                   [ 81%]
+tests/test_ui.py::test_project_notes_display 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:46 [    INFO] Operation: project_notes | Status: SUCCESS | Details: None (db_monitor.py:27)
+PASSED                                                                   [ 84%]
+tests/test_ui.py::test_project_details_error_handling 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:46 [    INFO] Operation: project_details | Status: SUCCESS | Details: None (db_monitor.py:27)
+FAILED                                                                   [ 87%]
+tests/test_ui.py::test_project_notes_form_submission 
+-------------------------------- live log call --------------------------------
+2024-11-13 19:05:46 [    INFO] Operation: project_notes | Status: SUCCESS | Details: None (db_monitor.py:27)
+FAILED                                                                   [ 90%]
+tests/test_yline.py::test_yline_item_creation PASSED                     [ 93%]
+tests/test_yline.py::test_yline_filtering FAILED                         [ 96%]
+tests/test_yline.py::test_yline_validation FAILED                        [100%]
+
+=================================== ERRORS ====================================
+___________________ ERROR at setup of test_competitor_crud ____________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_crud_operations.py, line 9
+  def test_competitor_crud(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_crud_operations.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_crud_operations.py:9
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:41.350 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+__________________ ERROR at setup of test_service_area_crud ___________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_crud_operations.py, line 35
+  def test_service_area_crud(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_crud_operations.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_crud_operations.py:35
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:41.352 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+____________________ ERROR at setup of test_create_project ____________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py, line 6
+  def test_create_project(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_project_crud.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py:6
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:45.775 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+_____________________ ERROR at setup of test_get_project ______________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py, line 18
+  def test_get_project(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_project_crud.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py:18
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:45.778 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+____________________ ERROR at setup of test_update_project ____________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py, line 23
+  def test_update_project(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_project_crud.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py:23
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:45.780 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+____________________ ERROR at setup of test_delete_project ____________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py, line 31
+  def test_delete_project(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_project_crud.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_crud.py:31
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:45.782 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+_______________ ERROR at setup of test_display_project_details ________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_management.py, line 35
+  def test_display_project_details(mock_streamlit, mock_db_session):
+E       fixture 'mock_streamlit' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_project_management.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_project_management.py:35
+_________________ ERROR at setup of test_database_connection __________________
+file C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_suite.py, line 11
+  def test_database_connection(db: Session):
+E       fixture 'db' not found
+>       available fixtures: _session_event_loop, anyio_backend, anyio_backend_name, anyio_backend_options, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, class_mocker, cov, db_session, doctest_namespace, engine, event_loop, event_loop_policy, mock_api, mock_db, mock_db_session, mock_st, mock_streamlit_context, mocker, module_mocker, monkeypatch, no_cover, package_mocker, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, sample_projects_df, session_mocker, st_client, tables, tests/test_suite.py::<event_loop>, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory, unused_tcp_port, unused_tcp_port_factory, unused_udp_port, unused_udp_port_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\tests\test_suite.py:11
+================================== FAILURES ===================================
+______________________ test_database_connection_failure _______________________
+
+    def test_database_connection_failure():
+        """Test database connection failure"""
+        # Arrange
+        mock_db = MagicMock()
+        mock_db.execute.side_effect = Exception("Connection failed")
+    
+        # Act
+>       result = verify_database_connection(mock_db)
+
+tests\test_db_monitor.py:13: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+app\utils\db_monitor.py:66: in verify_database_connection
+    db.execute("SELECT 1")
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1139: in __call__
+    return self._mock_call(*args, **kwargs)
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1143: in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='mock.execute' id='1736521313184'>, args = ('SELECT 1',)
+kwargs = {}, effect = Exception('Connection failed')
+
+    def _execute_mock_call(self, /, *args, **kwargs):
+        # separate from _increment_mock_call so that awaited functions are
+        # executed separately from their call, also AsyncMock overrides this method
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               Exception: Connection failed
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:1198: Exception
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:45.282 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+_____________________________ test_create_project _____________________________
+
+mock_db = <MagicMock id='1736525412112'>
+mock_st = <module 'streamlit' from 'C:\\Users\\xbows\\OneDrive\\Desktop\\Dad\\SwarmV2\\venv\\Lib\\site-packages\\streamlit\\__init__.py'>
+
+    def test_create_project(mock_db, mock_st):
+        """Test project creation"""
+        # Arrange
+        project_data = {
+            'project_type': 'Translation',
+            'project_desc': 'Test Project',
+            'status': 'New',
+            'analyst': 'Test Analyst',
+            'pm': 'Test PM'
+        }
+    
+        # Act
+        create_new_project()
+    
+        # Assert
+        result = pd.read_sql(
+            "SELECT * FROM CS_EXP_Project_Translation",
+            mock_db.bind
+        )
+>       assert not result.empty
+E       assert not True
+E        +  where True = Empty DataFrame\nColumns: []\nIndex: [].empty
+
+tests\test_project_management.py:31: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+2024-11-13 19:05:45.784 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+---------------------------- Captured stderr call -----------------------------
+2024-11-13 19:05:45.786 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.830 
+  [33m[1mWarning:[0m to view this Streamlit app on a browser, run it with the following
+  command:
+
+    streamlit run C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\venv\Scripts\pytest [ARGUMENTS]
+2024-11-13 19:05:45.830 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.830 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.831 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.831 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.831 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.831 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.832 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.833 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.834 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+_________________________ test_display_project_notes __________________________
+
+mock_db = <MagicMock id='1736526281328'>
+mock_st = <module 'streamlit' from 'C:\\Users\\xbows\\OneDrive\\Desktop\\Dad\\SwarmV2\\venv\\Lib\\site-packages\\streamlit\\__init__.py'>
+
+    def test_display_project_notes(mock_db, mock_st):
+        """Test project notes display"""
+        # Arrange
+        project_id = 'TEST001'
+        mock_db.execute(
+            """
+            INSERT INTO CS_EXP_ProjectNotes
+            (ProjectID, Notes, ProjectStatus, LastEditMSID, LastEditDate)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (project_id, 'Test Note', 'New', 'TestUser', datetime.now())
+        )
+    
+        # Act
+        display_project_notes(project_id)
+    
+        # Assert
+>       mock_st.markdown.assert_called()
+E       AttributeError: 'function' object has no attribute 'assert_called'
+
+tests\test_project_management.py:70: AttributeError
+---------------------------- Captured stdout call -----------------------------
+2024-11-13 19:05:45,854 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-11-13 19:05:45,854 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2024-11-13 19:05:45,855 INFO sqlalchemy.engine.Engine SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] 
+FROM [INFORMATION_SCHEMA].[TABLES] 
+WHERE ([INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max)) OR [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max))) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = CAST(? AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(? AS NVARCHAR(max))
+2024-11-13 19:05:45,855 - sqlalchemy.engine.Engine - INFO - SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] 
+FROM [INFORMATION_SCHEMA].[TABLES] 
+WHERE ([INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max)) OR [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max))) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = CAST(? AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(? AS NVARCHAR(max))
+2024-11-13 19:05:45,855 INFO sqlalchemy.engine.Engine [generated in 0.00098s] ('BASE TABLE', 'VIEW', '\n        SELECT \n            RecordID,\n            ProjectID,\n            Notes,\n            ProjectStatus,\n            LastEditMSID as Author, ... (39 characters truncated) ... EditDate, 126) as NoteDate\n        FROM CS_EXP_ProjectNotes WITH (NOLOCK)\n        WHERE ProjectID = ?\n        ORDER BY LastEditDate DESC\n        ', 'dbo')
+2024-11-13 19:05:45,855 - sqlalchemy.engine.Engine - INFO - [generated in 0.00098s] ('BASE TABLE', 'VIEW', '\n        SELECT \n            RecordID,\n            ProjectID,\n            Notes,\n            ProjectStatus,\n            LastEditMSID as Author, ... (39 characters truncated) ... EditDate, 126) as NoteDate\n        FROM CS_EXP_ProjectNotes WITH (NOLOCK)\n        WHERE ProjectID = ?\n        ORDER BY LastEditDate DESC\n        ', 'dbo')
+2024-11-13 19:05:45,864 INFO sqlalchemy.engine.Engine 
+        SELECT 
+            RecordID,
+            ProjectID,
+            Notes,
+            ProjectStatus,
+            LastEditMSID as Author,
+            CONVERT(VARCHAR(23), LastEditDate, 126) as NoteDate
+        FROM CS_EXP_ProjectNotes WITH (NOLOCK)
+        WHERE ProjectID = ?
+        ORDER BY LastEditDate DESC
+        
+2024-11-13 19:05:45,864 - sqlalchemy.engine.Engine - INFO - 
+        SELECT 
+            RecordID,
+            ProjectID,
+            Notes,
+            ProjectStatus,
+            LastEditMSID as Author,
+            CONVERT(VARCHAR(23), LastEditDate, 126) as NoteDate
+        FROM CS_EXP_ProjectNotes WITH (NOLOCK)
+        WHERE ProjectID = ?
+        ORDER BY LastEditDate DESC
+        
+2024-11-13 19:05:45,865 INFO sqlalchemy.engine.Engine [raw sql] ('TEST001',)
+2024-11-13 19:05:45,865 - sqlalchemy.engine.Engine - INFO - [raw sql] ('TEST001',)
+2024-11-13 19:05:45,868 INFO sqlalchemy.engine.Engine ROLLBACK
+2024-11-13 19:05:45,868 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2024-11-13 19:05:45,872 - root - INFO - Operation: project_notes | Status: SUCCESS | Details: None
+---------------------------- Captured stderr call -----------------------------
+2024-11-13 19:05:45.868 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.869 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.869 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.869 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.869 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.870 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.871 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.872 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.872 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.872 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.872 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:45.872 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+------------------------------ Captured log call ------------------------------
+INFO     sqlalchemy.engine.Engine:base.py:2689 BEGIN (implicit)
+INFO     sqlalchemy.engine.Engine:base.py:1848 SELECT [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] 
+FROM [INFORMATION_SCHEMA].[TABLES] 
+WHERE ([INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max)) OR [INFORMATION_SCHEMA].[TABLES].[TABLE_TYPE] = CAST(? AS NVARCHAR(max))) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_NAME] = CAST(? AS NVARCHAR(max)) AND [INFORMATION_SCHEMA].[TABLES].[TABLE_SCHEMA] = CAST(? AS NVARCHAR(max))
+INFO     sqlalchemy.engine.Engine:base.py:1848 [generated in 0.00098s] ('BASE TABLE', 'VIEW', '\n        SELECT \n            RecordID,\n            ProjectID,\n            Notes,\n            ProjectStatus,\n            LastEditMSID as Author, ... (39 characters truncated) ... EditDate, 126) as NoteDate\n        FROM CS_EXP_ProjectNotes WITH (NOLOCK)\n        WHERE ProjectID = ?\n        ORDER BY LastEditDate DESC\n        ', 'dbo')
+INFO     sqlalchemy.engine.Engine:base.py:1848 
+        SELECT 
+            RecordID,
+            ProjectID,
+            Notes,
+            ProjectStatus,
+            LastEditMSID as Author,
+            CONVERT(VARCHAR(23), LastEditDate, 126) as NoteDate
+        FROM CS_EXP_ProjectNotes WITH (NOLOCK)
+        WHERE ProjectID = ?
+        ORDER BY LastEditDate DESC
+        
+INFO     sqlalchemy.engine.Engine:base.py:1848 [raw sql] ('TEST001',)
+INFO     sqlalchemy.engine.Engine:base.py:2692 ROLLBACK
+INFO     root:db_monitor.py:27 Operation: project_notes | Status: SUCCESS | Details: None
+___________________________ test_ui_initialization ____________________________
+
+mock_streamlit_context = <module 'streamlit' from 'C:\\Users\\xbows\\OneDrive\\Desktop\\Dad\\SwarmV2\\venv\\Lib\\site-packages\\streamlit\\__init__.py'>
+
+    def test_ui_initialization(mock_streamlit_context):
+        """Test UI initialization"""
+        try:
+            app = AxisProgramUI()
+            assert app is not None
+>           assert st.session_state.current_page == 'Projects'
+E           AttributeError: 'dict' object has no attribute 'current_page'
+
+tests\test_suite.py:54: AttributeError
+
+During handling of the above exception, another exception occurred:
+
+mock_streamlit_context = <module 'streamlit' from 'C:\\Users\\xbows\\OneDrive\\Desktop\\Dad\\SwarmV2\\venv\\Lib\\site-packages\\streamlit\\__init__.py'>
+
+    def test_ui_initialization(mock_streamlit_context):
+        """Test UI initialization"""
+        try:
+            app = AxisProgramUI()
+            assert app is not None
+            assert st.session_state.current_page == 'Projects'
+        except Exception as e:
+>           pytest.fail(f"UI initialization failed: {str(e)}")
+E           Failed: UI initialization failed: 'dict' object has no attribute 'current_page'
+
+tests\test_suite.py:56: Failed
+---------------------------- Captured stdout call -----------------------------
+2024-11-13 19:05:46,575 - root - INFO - AxisProgramUI initialized successfully
+---------------------------- Captured stderr call -----------------------------
+2024-11-13 19:05:46.575 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+------------------------------ Captured log call ------------------------------
+INFO     root:main.py:23 AxisProgramUI initialized successfully
+________________________ test_project_details_display _________________________
+
+self = <MagicMock name='expander' id='1736525136816'>
+
+    def assert_called(self):
+        """assert that the mock was called at least once
+        """
+        if self.call_count == 0:
+            msg = ("Expected '%s' to have been called." %
+                   (self._mock_name or 'mock'))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'expander' to have been called.
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:918: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+mock_streamlit = {'columns': <MagicMock name='columns' id='1736525141616'>, 'error': <MagicMock name='error' id='1736526315984'>, 'expander': <MagicMock name='expander' id='1736525136816'>, 'form': <MagicMock name='form' id='1736525145696'>, ...}
+mock_db_session = <MagicMock id='1736496704080'>
+
+    def test_project_details_display(mock_streamlit, mock_db_session):
+        """Test project details display"""
+        # Arrange
+        project_id = "TEST001"
+    
+        with patch('app.main.get_db', return_value=iter([mock_db_session])):
+            # Act
+            display_project_details(project_id)
+    
+            # Assert
+>           mock_streamlit['expander'].assert_called()
+E           AssertionError: Expected 'expander' to have been called.
+
+tests\test_ui.py:64: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2024-11-13 19:05:46,601 - root - INFO - Operation: project_details | Status: SUCCESS | Details: None
+------------------------------ Captured log call ------------------------------
+INFO     root:db_monitor.py:27 Operation: project_details | Status: SUCCESS | Details: None
+_____________________ test_project_details_error_handling _____________________
+
+self = <MagicMock name='error' id='1736527544688'>
+
+    def assert_called(self):
+        """assert that the mock was called at least once
+        """
+        if self.call_count == 0:
+            msg = ("Expected '%s' to have been called." %
+                   (self._mock_name or 'mock'))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'error' to have been called.
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:918: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+mock_streamlit = {'columns': <MagicMock name='columns' id='1736527604784'>, 'error': <MagicMock name='error' id='1736527544688'>, 'expander': <MagicMock name='expander' id='1736527608720'>, 'form': <MagicMock name='form' id='1736527600752'>, ...}
+mock_db_session = <MagicMock id='1736530936224'>
+
+    def test_project_details_error_handling(mock_streamlit, mock_db_session):
+        """Test project details error handling"""
+        # Arrange
+        project_id = "TEST001"
+        mock_db_session.execute.side_effect = Exception("Test error")
+    
+        with patch('app.main.get_db', return_value=iter([mock_db_session])):
+            # Act
+            display_project_details(project_id)
+    
+            # Assert
+>           mock_streamlit['error'].assert_called()
+E           AssertionError: Expected 'error' to have been called.
+
+tests\test_ui.py:91: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2024-11-13 19:05:46,689 - root - INFO - Operation: project_details | Status: SUCCESS | Details: None
+------------------------------ Captured log call ------------------------------
+INFO     root:db_monitor.py:27 Operation: project_details | Status: SUCCESS | Details: None
+_____________________ test_project_notes_form_submission ______________________
+
+self = <MagicMock name='form().__enter__().form_submit_button' id='1736528103232'>
+
+    def assert_called(self):
+        """assert that the mock was called at least once
+        """
+        if self.call_count == 0:
+            msg = ("Expected '%s' to have been called." %
+                   (self._mock_name or 'mock'))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'form_submit_button' to have been called.
+
+..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\unittest\mock.py:918: AssertionError
+
+During handling of the above exception, another exception occurred:
+
+mock_streamlit = {'columns': <MagicMock name='columns' id='1736527906048'>, 'error': <MagicMock name='error' id='1736527610704'>, 'expander': <MagicMock name='expander' id='1736528033456'>, 'form': <MagicMock name='form' id='1736527910032'>, ...}
+mock_db_session = <MagicMock id='1736527925936'>
+
+    def test_project_notes_form_submission(mock_streamlit, mock_db_session):
+        """Test project notes form submission"""
+        # Arrange
+        project_id = "TEST001"
+        form = MagicMock()
+        mock_streamlit['form'].return_value.__enter__.return_value = form
+        form.form_submit_button.return_value = True
+    
+        with patch('app.main.get_db', return_value=iter([mock_db_session])):
+            # Act
+            display_project_notes(project_id)
+    
+            # Assert
+>           form.form_submit_button.assert_called()
+E           AssertionError: Expected 'form_submit_button' to have been called.
+
+tests\test_ui.py:106: AssertionError
+---------------------------- Captured stdout call -----------------------------
+2024-11-13 19:05:46,767 - root - INFO - Operation: project_notes | Status: SUCCESS | Details: None
+---------------------------- Captured stderr call -----------------------------
+2024-11-13 19:05:46.765 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.765 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.765 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.765 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2024-11-13 19:05:46.766 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+------------------------------ Captured log call ------------------------------
+INFO     root:db_monitor.py:27 Operation: project_notes | Status: SUCCESS | Details: None
+____________________________ test_yline_filtering _____________________________
+
+mock_db = <MagicMock id='1736530800672'>
+
+    def test_yline_filtering(mock_db):
+        """Test Y-Line item filtering"""
+        # Arrange
+        manager = YLineManager(mock_db)
+        items = [
+            YLineItem("IPA001", "A1", "Test 1", True, False, "Active", datetime.now()),
+            YLineItem("IPA002", "A2", "Test 2", False, True, "Inactive", datetime.now())
+        ]
+        for item in items:
+            manager.create_yline_item(item)
+    
+        # Act
+        active_items = manager.get_yline_items(status_filter="Active")
+    
+        # Assert
+>       assert len(active_items) == 1
+E       assert 0 == 1
+E        +  where 0 = len(Empty DataFrame\nColumns: []\nIndex: [])
+
+tests\test_yline.py:52: AssertionError
+____________________________ test_yline_validation ____________________________
+
+    def test_yline_validation():
+        """Test Y-Line validation rules"""
+        # Arrange
+        item = YLineItem(
+            ipa_number="IPA001",
+            product_code="A1",
+            description="Test Product",
+            pre_award=True,
+            post_award=True,  # Should raise validation error
+            status="Active",
+            last_updated=datetime.now()
+        )
+    
+        # Act & Assert
+        with pytest.raises(ValueError):
+>           validate_yline_item(item)
+E           NameError: name 'validate_yline_item' is not defined
+
+tests\test_yline.py:70: NameError
+- generated xml file: C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\test-results.xml -
+
+---------- coverage: platform win32, python 3.12.7-final-0 -----------
+Name                                                 Stmts   Miss  Cover   Missing
+----------------------------------------------------------------------------------
+app\__init__.py                                          0      0   100%
+app\api\__init__.py                                      0      0   100%
+app\api\endpoints\__init__.py                            0      0   100%
+app\api\endpoints\competitors.py                        46     46     0%   1-69
+app\api\endpoints\notes.py                              43     43     0%   1-51
+app\api\endpoints\projects.py                           42     42     0%   1-92
+app\api\endpoints\service_areas.py                      37     37     0%   1-45
+app\api\endpoints\yline.py                              42     42     0%   1-50
+app\core\__init__.py                                     0      0   100%
+app\core\config.py                                      14      0   100%
+app\core\error_handler.py                               29     17    41%   9-15, 19-26, 31-35
+app\core\exceptions.py                                  10     10     0%   1-13
+app\core\logging_config.py                              19      0   100%
+app\core\validators.py                                  26     26     0%   1-35
+app\db\__init__.py                                       0      0   100%
+app\db\base.py                                           7      2    71%   9-10
+app\db\crud\base.py                                     57     43    25%   14-18, 23-27, 30-39, 44-59, 62-69
+app\db\crud\competitor.py                               12      3    75%   8, 11, 14
+app\db\crud\project.py                                  12      3    75%   8, 11, 14
+app\db\crud\service_area.py                             10      2    80%   8, 11
+app\db\session.py                                       10      0   100%
+app\frontend\__init__.py                                 0      0   100%
+app\frontend\components\__init__.py                      5      5     0%   1-6
+app\frontend\components\competitor_management.py         9      9     0%   1-11
+app\frontend\components\notes_management.py              9      9     0%   1-11
+app\frontend\components\project_details.py              77     77     0%   1-138
+app\frontend\components\project_management.py          197    197     0%   1-355
+app\frontend\components\service_area_management.py       9      9     0%   1-11
+app\frontend\components\status_tracker.py               24     24     0%   1-41
+app\frontend\dashboard.py                               76     76     0%   1-149
+app\frontend\main.py                                    97     74    24%   21, 24-26, 29-35, 39-54, 57-79, 83-116, 120-138, 141-151, 154-155
+app\main.py                                            320    252    21%   10-44, 47-48, 52-90, 94-151, 154-253, 257-280, 285-380, 384-443, 446-458, 461-473, 477-495, 498-500, 503-505, 509-542, 585-621, 628-629, 660-683, 687-689, 721, 743-775, 781-803, 806
+app\models\__init__.py                                   6      0   100%
+app\models\competitor.py                                16      0   100%
+app\models\notes.py                                     15      0   100%
+app\models\project.py                                   22      0   100%
+app\models\project_status.py                            13     13     0%   1-16
+app\models\project_type.py                               8      8     0%   1-10
+app\models\service_area.py                              14      0   100%
+app\models\yline.py                                     42      1    98%   61
+app\schemas\competitor.py                               21      0   100%
+app\schemas\project.py                                  42      0   100%
+app\schemas\service_area.py                             19      0   100%
+app\services\competitor_service.py                      27      9    67%   10, 14, 20, 24, 30-35, 39
+app\services\project_service.py                         27      9    67%   10, 14, 20, 24, 30-35, 39
+app\services\service_area_service.py                    27      9    67%   10, 14, 20, 24, 30-35, 39
+app\utils\db_monitor.py                                 73     25    66%   57-59, 69-70, 89, 106-132
+----------------------------------------------------------------------------------
+TOTAL                                                 1611   1122    30%
+
+=========================== short test summary info ===========================
+FAILED tests/test_db_monitor.py::test_database_connection_failure - Exception...
+FAILED tests/test_project_management.py::test_create_project - assert not True
+FAILED tests/test_project_management.py::test_display_project_notes - Attribu...
+FAILED tests/test_suite.py::test_ui_initialization - Failed: UI initializatio...
+FAILED tests/test_ui.py::test_project_details_display - AssertionError: Expec...
+FAILED tests/test_ui.py::test_project_details_error_handling - AssertionError...
+FAILED tests/test_ui.py::test_project_notes_form_submission - AssertionError:...
+FAILED tests/test_yline.py::test_yline_filtering - assert 0 == 1
+FAILED tests/test_yline.py::test_yline_validation - NameError: name 'validate...
+ERROR tests/test_crud_operations.py::test_competitor_crud
+ERROR tests/test_crud_operations.py::test_service_area_crud
+ERROR tests/test_project_crud.py::test_create_project
+ERROR tests/test_project_crud.py::test_get_project
+ERROR tests/test_project_crud.py::test_update_project
+ERROR tests/test_project_crud.py::test_delete_project
+ERROR tests/test_project_management.py::test_display_project_details
+ERROR tests/test_suite.py::test_database_connection
+=================== 9 failed, 16 passed, 8 errors in 7.68s ====================
+
+ERRORS AND WARNINGS
+================================================================================
+C:\Users\xbows\OneDrive\Desktop\Dad\SwarmV2\venv\Lib\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
