@@ -68,3 +68,8 @@ htmlcov/
 # Misc
 .DS_Store
 Thumbs.db 
+
+# Test artifacts
+.pytest_cache/
+geckodriver.log
+chromedriver.log 

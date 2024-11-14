@@ -92,7 +92,16 @@ class SetupVerification:
     def check_project_structure(self):
         self.total_checks += 1
         print("\nChecking project structure...")
-        required_dirs = ['app', 'tests', 'app/models', 'app/db', 'app/core']
+        required_dirs = [
+            'app',
+            'tests/unit',
+            'tests/integration',
+            'tests/e2e',
+            'tests/fixtures',
+            'app/models',
+            'app/db',
+            'app/core'
+        ]
         missing_dirs = [dir for dir in required_dirs if not Path(dir).is_dir()]
         
         if not missing_dirs:

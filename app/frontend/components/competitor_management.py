@@ -1,11 +1,10 @@
+"""Competitor management component"""
 import streamlit as st
-import pandas as pd
-from typing import Dict, Optional
+import logging
 
-class CompetitorManagement:
-    def __init__(self):
-        pass
+logger = logging.getLogger(__name__)
 
-    def render(self):
-        st.title("Competitor Management")
-        st.info("This feature is under development") 
+def display_competitor_management():
+    """Display competitor management interface"""
+    st.header("Competitor Management")
+    # Add competitor management UI elements here 
