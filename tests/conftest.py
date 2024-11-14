@@ -1,22 +1,18 @@
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy.orm import Session
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 @pytest.fixture(scope="session")
-def test_app():
-    from app.main import app
-    client = TestClient(app)
-    yield client
+def driver():
+    """Setup WebDriver for tests"""
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
+    driver.implicitly_wait(10)
+    yield driver
+    driver.quit()
 
 @pytest.fixture(scope="session")
-def db_session():
-    from app.db.session import SessionLocal
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
-
-@pytest.fixture
-def test_client(test_app):
-    return test_app
+def base_url():
+    """Base URL for Streamlit application"""
+    return "http://localhost:8501"

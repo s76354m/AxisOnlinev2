@@ -1,11 +1,10 @@
+"""Notes management component"""
 import streamlit as st
-import pandas as pd
-from typing import Dict, Optional
+import logging
 
-class NotesManagement:
-    def __init__(self):
-        pass
+logger = logging.getLogger(__name__)
 
-    def render(self):
-        st.title("Notes Management")
-        st.info("This feature is under development") 
+def display_notes_management():
+    """Display notes management interface"""
+    st.header("Notes Management")
+    # Add notes management UI elements here 

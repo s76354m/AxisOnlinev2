@@ -88,7 +88,7 @@
 - [ ] User acceptance testing for Y-Line module
 
 ### 2. CSP LOB Mapping
-- [ ] LOB mapping interface
+- [x] LOB mapping interface (In Progress)
 - [ ] Data validation
 - [ ] Integration with existing systems
 - [ ] Reporting features
@@ -133,7 +133,7 @@
 
 ## Phase 5: Testing & Deployment (2 weeks)
 ### 1. Testing
-- [ ] Unit tests
+- [ ] Unit tests ⬅️ START IMPLEMENTING
 - [ ] Integration tests
 - [ ] User acceptance testing
 - [ ] Performance testing
@@ -142,7 +142,7 @@
 - [ ] Cross-browser testing
 
 ### 2. Deployment
-- [ ] Docker configuration
+- [ ] Docker configuration ⬅️ START PLANNING
 - [ ] Azure App Service setup
 - [ ] CI/CD pipeline
 - [ ] Monitoring setup
