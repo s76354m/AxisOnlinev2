@@ -5,6 +5,11 @@ from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
 from app.utils.db_monitor import monitor_db_operation, display_db_monitor
+from fastapi import FastAPI
+from app.middleware.error_handler import ErrorHandler
+
+app = FastAPI()
+app.middleware("http")(ErrorHandler())
 
 def main():
     st.set_page_config(
