@@ -1,4 +1,4 @@
-"""Components initialization"""
+"""UI components initialization"""
 from .project_management import display_project_management
 from .competitor_management import display_competitor_management
 from .service_area_management import display_service_area_management

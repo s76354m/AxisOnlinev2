@@ -10,9 +10,14 @@ def display_project_management():
     try:
         st.header("Project Management")
         
-        # Add new project button
-        if st.button("+ New Project"):
-            st.session_state.current_view = 'new_project'
+        # Add new project button with proper layout and unique key
+        col1, col2, col3 = st.columns([1, 4, 1])
+        with col1:
+            if st.button("+ New Project", type="primary", key="project_mgmt_new_btn"):
+                print("New Project button clicked in component")  # Debug print
+                st.session_state.current_view = 'new_project'
+                st.rerun()
+                return  # Exit after state change
         
         # Project List/Grid Toggle
         view_type = st.radio("View", ["List", "Grid"], horizontal=True)

@@ -2,12 +2,11 @@
 import sys
 from pathlib import Path
 
-# Add the project root to Python path
+# Add project root to Python path
 root_path = Path(__file__).parent
 sys.path.append(str(root_path))
 
-# Import the UI
-from app.frontend.main import main
+from app.ui.main import main
 
 if __name__ == "__main__":
     main() 

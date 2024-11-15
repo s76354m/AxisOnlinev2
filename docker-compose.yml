@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./app:/app/app
+      - ./logs:/app/logs
+    environment:
+      - DB_SERVER=${DB_SERVER}
+      - DB_NAME=${DB_NAME}
+      - DB_DRIVER=${DB_DRIVER}
+      - DB_TRUSTED_CONNECTION=${DB_TRUSTED_CONNECTION}
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    networks:
+      - app-network
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ./tests:/app/tests
+      - ./app:/app/app
+    environment:
+      - DB_SERVER=${TEST_DB_SERVER}
+      - DB_NAME=${TEST_DB_NAME}
+      - DB_DRIVER=${DB_DRIVER}
+      - DB_TRUSTED_CONNECTION=${DB_TRUSTED_CONNECTION}
+    command: pytest -v --cov=app tests/
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge 

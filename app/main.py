@@ -7,17 +7,15 @@ import plotly.graph_objects as go
 from app.utils.db_monitor import monitor_db_operation, display_db_monitor
 from fastapi import FastAPI
 from app.middleware.error_handler import ErrorHandler
+from app.frontend.components.project_management import display_project_management
 
 app = FastAPI()
 app.middleware("http")(ErrorHandler())
 
 def main():
-    st.set_page_config(
-        page_title="Axis Program Management",
-        page_icon="📊",
-        layout="wide"
-    )
-
+    # Add debug print
+    print(f"Current view: {st.session_state.get('current_view', 'Not set')}")
+    
     # Initialize session state
     if 'current_view' not in st.session_state:
         st.session_state.current_view = 'dashboard'
@@ -28,23 +26,34 @@ def main():
     with st.sidebar:
         st.title("Axis Program Management")
         st.markdown("---")
-        view = st.radio(
-            "Navigation",
-            ["Dashboard", "Project Management", "Reports"],
-            key="nav"
-        )
-        st.session_state.current_view = view.lower().replace(" ", "_")
         
+        # Navigation radio
+        if st.session_state.current_view not in ['new_project', 'project_details']:
+            view = st.radio(
+                "Navigation",
+                ["Dashboard", "Project Management", "Reports"],
+                key="nav"
+            )
+            st.session_state.current_view = view.lower().replace(" ", "_")
+        
+        # Add New Project button in sidebar when in project_management view
+        if st.session_state.current_view == 'project_management':
+            if st.button("+ New Project", key="new_project_btn"):
+                st.session_state.current_view = 'new_project'
+                st.rerun()
+
         # User info
         st.markdown("---")
         st.markdown(f"User: {get_current_user()}")
         st.markdown(f"Last Login: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
-    # Main content
+    # Main content routing
     if st.session_state.current_view == 'dashboard':
         render_dashboard()
     elif st.session_state.current_view == 'project_management':
         render_project_management()
+    elif st.session_state.current_view == 'new_project':  # Make sure this condition exists
+        create_new_project()  # Make sure this function is imported/defined
     elif st.session_state.current_view == 'reports':
         render_reports()
 
@@ -287,102 +296,8 @@ def get_status_distribution():
 @monitor_db_operation("project_management")
 def render_project_management():
     """Render project management view"""
-    st.title("Project Management")
-    
-    # Add database monitor
-    if st.checkbox("Show Database Monitor"):
-        display_db_monitor()
-    
-    # Add debug checkbox
-    if st.checkbox("Show Database Structure"):
-        verify_table_structure()
-    
-    # Create tabs for project list and new project
-    tab1, tab2 = st.tabs(["Project List", "Create New Project"])
-    
-    with tab1:
-        # Filters
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            status_filter = st.multiselect(
-                "Status Filter",
-                ["New", "Active", "Review", "Completed"],
-                default=["New", "Active"]
-            )
-        
-        with col2:
-            try:
-                date_range = st.date_input(
-                    "Date Range",
-                    value=[
-                        datetime.now() - timedelta(days=30),
-                        datetime.now()
-                    ],
-                    max_value=datetime.now()
-                )
-            except Exception as e:
-                st.error(f"Error with date input: {str(e)}")
-                date_range = None
-        
-        # Get filtered projects
-        projects_df = get_filtered_projects(
-            status_filter=status_filter if status_filter else None,
-            date_range=date_range if isinstance(date_range, (list, tuple)) and len(date_range) == 2 else None
-        )
-        
-        if not projects_df.empty:
-            # Display projects in a dataframe with selection
-            st.dataframe(
-                projects_df,
-                column_config={
-                    "ProjectID": st.column_config.TextColumn(
-                        "Project ID",
-                        width="medium"
-                    ),
-                    "ProjectType": st.column_config.TextColumn(
-                        "Type",
-                        width="small"
-                    ),
-                    "ProjectDesc": st.column_config.TextColumn(
-                        "Description",
-                        width="large"
-                    ),
-                    "Status": st.column_config.TextColumn(
-                        "Status",
-                        width="medium"
-                    ),
-                    "LastEditDate": st.column_config.TextColumn(
-                        "Last Updated",
-                        width="medium"
-                    )
-                },
-                hide_index=True,
-                use_container_width=True
-            )
-            
-            # Add a selectbox for project selection
-            project_ids = projects_df['ProjectID'].tolist()
-            project_descriptions = [
-                f"Project {pid}: {desc[:50]}..." 
-                for pid, desc in zip(projects_df['ProjectID'], projects_df['ProjectDesc'])
-            ]
-            
-            selected_project_index = st.selectbox(
-                "Select a project to view details:",
-                range(len(project_ids)),
-                format_func=lambda x: project_descriptions[x]
-            )
-            
-            if selected_project_index is not None:
-                selected_project_id = project_ids[selected_project_index]
-                display_project_details(selected_project_id)
-                
-        else:
-            st.info("No projects found matching the filters.")
-    
-    with tab2:
-        create_new_project()
+    # Remove the button definition from here and just call the component
+    display_project_management()  # Make sure this is imported
 
 def get_filtered_projects(status_filter=None, date_range=None):
     """Get filtered projects from database"""
@@ -548,47 +463,56 @@ def debug_date_formats():
 
 def create_new_project():
     """Create a new project form"""
-    st.subheader("Create New Project")
+    st.title("Create New Project")
     
-    with st.form("new_project_form"):
-        col1, col2 = st.columns(2)
+    # Add back button
+    col1, col2, col3 = st.columns([1, 4, 1])
+    with col1:
+        if st.button("← Back", key="back_to_projects"):
+            st.session_state.current_view = 'project_management'
+            st.rerun()
+            return
+
+    # Project form
+    with st.form("new_project_form", clear_on_submit=True):
+        # Required fields
+        project_type = st.selectbox(
+            "Project Type *",
+            ["Translation", "Review", "QA", "Other"],
+            index=None,
+            placeholder="Select project type..."
+        )
         
+        project_desc = st.text_area(
+            "Project Description *",
+            placeholder="Enter project description"
+        )
+        
+        col1, col2 = st.columns(2)
         with col1:
-            project_type = st.selectbox(
-                "Project Type",
-                ["Translation", "Review", "QA", "Other"],
-                index=None,
-                placeholder="Select project type..."
-            )
-            
             status = st.selectbox(
-                "Status",
+                "Status *",
                 ["New", "Active", "Review", "Completed"],
                 index=0
             )
             
             analyst = st.text_input(
-                "Analyst",
+                "Analyst *",
                 placeholder="Enter analyst name"
             )
         
         with col2:
-            project_desc = st.text_area(
-                "Project Description",
-                placeholder="Enter project description",
-                height=100
-            )
-            
             pm = st.text_input(
-                "Project Manager",
+                "Project Manager *",
                 placeholder="Enter PM name"
             )
         
         submitted = st.form_submit_button("Create Project")
         
         if submitted:
-            if not project_type or not project_desc:
-                st.error("Project Type and Description are required.")
+            # Validate required fields
+            if not all([project_type, project_desc, analyst, pm]):
+                st.error("All fields marked with * are required.")
                 return
             
             try:
@@ -600,8 +524,9 @@ def create_new_project():
                     Status,
                     Analyst,
                     PM,
-                    LastEditDate
-                ) VALUES (?, ?, ?, ?, ?, GETDATE())
+                    LastEditDate,
+                    LastEditMSID
+                ) VALUES (?, ?, ?, ?, ?, GETDATE(), ?)
                 """
                 
                 params = [
@@ -609,15 +534,17 @@ def create_new_project():
                     project_desc,
                     status,
                     analyst,
-                    pm
+                    pm,
+                    get_current_user()
                 ]
                 
                 db.execute(query, params)
                 db.commit()
                 st.success("Project created successfully!")
                 
-                # Clear form (by rerunning the app)
-                st.experimental_rerun()
+                # Navigate back to project management
+                st.session_state.current_view = 'project_management'
+                st.rerun()
                 
             except Exception as e:
                 st.error(f"Error creating project: {str(e)}")

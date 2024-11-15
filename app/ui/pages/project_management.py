@@ -1,101 +1,86 @@
 import streamlit as st
 import pandas as pd
-from app.services.project_service import ProjectService
+from datetime import datetime
 from app.models.project import ProjectStatus, ProjectType
+from app.db.session import get_db
 
-def render_page(db_session):
+def render_page():
+    """Render project management page"""
     st.title("Project Management")
-    
-    # Initialize services
-    project_service = ProjectService(db_session)
-    
-    # Create tabs for different views
-    tab1, tab2, tab3 = st.tabs(["Project List", "Add Project", "Reports"])
-    
-    with tab1:
-        render_project_list(project_service)
-    
-    with tab2:
-        render_add_project_form(project_service)
-    
-    with tab3:
-        render_project_reports(project_service)
 
-def render_project_list(project_service):
-    st.header("Project List")
-    
-    # Filters
+    # Add new project button
+    if st.button("+ New Project"):
+        st.session_state.current_view = "new_project"
+        st.rerun()
+
+    # Project List/Grid Toggle
+    view_type = st.radio("View", ["List", "Grid"], horizontal=True)
+
+    # Project Filters
     col1, col2, col3 = st.columns(3)
     with col1:
-        status_filter = st.multiselect(
+        status_filter = st.selectbox(
             "Status",
-            options=[s.value for s in ProjectStatus]
+            ["All"] + [status.value for status in ProjectStatus]
         )
     with col2:
-        type_filter = st.multiselect(
+        type_filter = st.selectbox(
             "Type",
-            options=[t.value for t in ProjectType]
+            ["All"] + [ptype.value for ptype in ProjectType]
         )
     with col3:
-        search = st.text_input("Search", "")
-    
-    # Get and display projects
-    projects = project_service.get_projects(
-        status_filter=status_filter,
-        type_filter=type_filter,
-        search=search
-    )
-    
-    if projects:
-        df = pd.DataFrame(projects)
-        st.dataframe(
-            df,
-            column_config={
-                "id": "Project ID",
-                "name": "Project Name",
-                "status": "Status",
-                "type": "Type",
-                "created_at": "Created Date"
-            },
-            hide_index=True
-        )
-    else:
-        st.info("No projects found matching the criteria.")
+        search = st.text_input("Search", placeholder="Search projects...")
 
-def render_add_project_form(project_service):
-    st.header("Add New Project")
-    
-    with st.form("add_project"):
-        name = st.text_input("Project Name")
-        status = st.selectbox("Status", options=[s.value for s in ProjectStatus])
-        type = st.selectbox("Type", options=[t.value for t in ProjectType])
-        description = st.text_area("Description")
+    try:
+        db = next(get_db())
+        # Query to get projects based on filters
+        query = """
+        SELECT 
+            ProjectID,
+            ProjectType,
+            ProjectDesc,
+            Status,
+            Analyst,
+            PM,
+            LastEditDate
+        FROM CS_EXP_Project_Translation WITH (NOLOCK)
+        WHERE 1=1
+        """
         
-        submitted = st.form_submit_button("Add Project")
-        
-        if submitted:
-            try:
-                project_service.create_project(
-                    name=name,
-                    status=status,
-                    type=type,
-                    description=description
-                )
-                st.success("Project added successfully!")
-            except Exception as e:
-                st.error(f"Error adding project: {str(e)}")
+        params = []
+        if status_filter != "All":
+            query += " AND Status = ?"
+            params.append(status_filter)
+        if type_filter != "All":
+            query += " AND ProjectType = ?"
+            params.append(type_filter)
+        if search:
+            query += " AND (ProjectDesc LIKE ? OR Analyst LIKE ? OR PM LIKE ?)"
+            search_param = f"%{search}%"
+            params.extend([search_param, search_param, search_param])
 
-def render_project_reports(project_service):
-    st.header("Project Reports")
-    
-    # Status summary
-    status_summary = project_service.get_status_summary()
-    if status_summary:
-        st.subheader("Status Summary")
-        st.bar_chart(status_summary)
-    
-    # Type summary
-    type_summary = project_service.get_type_summary()
-    if type_summary:
-        st.subheader("Type Summary")
-        st.bar_chart(type_summary) 
+        query += " ORDER BY LastEditDate DESC"
+        
+        df = pd.read_sql(query, db.bind, params=params)
+        
+        if not df.empty:
+            st.dataframe(
+                df,
+                column_config={
+                    "ProjectID": "Project ID",
+                    "ProjectType": "Type",
+                    "ProjectDesc": "Description",
+                    "Status": "Status",
+                    "Analyst": "Analyst",
+                    "PM": "Project Manager",
+                    "LastEditDate": "Last Updated"
+                },
+                hide_index=True
+            )
+        else:
+            st.info("No projects found matching the criteria.")
+
+    except Exception as e:
+        st.error(f"Error loading projects: {str(e)}")
+    finally:
+        db.close() 

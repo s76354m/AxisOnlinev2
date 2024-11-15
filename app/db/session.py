@@ -11,9 +11,7 @@ try:
     engine = create_engine(
         settings.DATABASE_URL,
         echo=settings.DB_ECHO,
-        pool_pre_ping=True,
-        pool_recycle=3600,
-        fast_executemany=True
+        pool_pre_ping=True
     )
 
     # Test the connection
@@ -28,7 +26,7 @@ except Exception as e:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-    """Dependency for getting database sessions"""
+    """Get database session"""
     db = SessionLocal()
     try:
         yield db
