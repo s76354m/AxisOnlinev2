@@ -1,10 +1,11 @@
 """Integration tests for complete workflows"""
 import pytest
 from sqlalchemy.orm import Session
+from app.core.config import settings
 from app.services.project_service import ProjectService
 from app.services.csp_lob_service import CSPLOBService
 from app.services.y_line_service import YLineService
-from app.schemas.project import ProjectCreate
+from app.schemas.project import ProjectCreate, ProjectUpdate
 from app.schemas.csp_lob import CSPLOBCreate
 from app.schemas.y_line import YLineCreate
 from app.models.project import ProjectStatus

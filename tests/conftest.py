@@ -6,8 +6,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.database import get_db
-from app.models.base import Base
+from app.db.base import Base
 from app.core.config import settings
 from app.models.project import Project
 from app.models.csp_lob import CSPLOB
@@ -34,7 +33,7 @@ def base_url():
 
 @pytest.fixture(scope="session")
 def engine():
-    return create_engine("sqlite:///./test.db")
+    return create_engine(settings.TEST_DATABASE_URL)
 
 @pytest.fixture(scope="session")
 def TestingSessionLocal(engine):
