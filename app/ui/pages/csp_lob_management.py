@@ -1,296 +1,148 @@
 """CSP LOB Management page"""
 import streamlit as st
 import pandas as pd
-from datetime import datetime
-from app.db.session import get_db
-from app.utils.validators import CSPLOBValidator
 from app.services.csp_lob_service import CSPLOBService
-import logging
-
-logger = logging.getLogger(__name__)
+from app.schemas.csp_lob import CSPLOBCreate
+import io
 
 def render_page():
-    """Render CSP LOB management page"""
     st.title("CSP Line of Business Management")
-
-    # Add new mapping button
-    if st.button("+ New Mapping"):
-        st.session_state.current_view = "new_mapping"
-        st.rerun()
-
-    # View type toggle
-    view_type = st.radio("View", ["List", "Grid"], horizontal=True)
-
-    # Filters
-    col1, col2, col3 = st.columns(3)
+    csp_lob_service = CSPLOBService()
+    
+    # Create New Mapping Section
+    with st.expander("Create New CSP LOB Mapping", expanded=st.session_state.get('show_new_mapping', False)):
+        with st.form("new_mapping_form"):
+            csp_code = st.text_input("CSP Code*")
+            lob_type = st.selectbox(
+                "LOB Type*",
+                ["Medical", "Dental", "Vision", "Pharmacy", "Other"]
+            )
+            description = st.text_area("Description*")
+            status = st.selectbox("Status*", ["Active", "Inactive", "Pending"])
+            project_id = st.text_input("Project ID*")
+            
+            submitted = st.form_submit_button("Create Mapping")
+            if submitted:
+                if not all([csp_code, lob_type, description, status, project_id]):
+                    st.error("Please fill in all required fields")
+                else:
+                    try:
+                        mapping_data = CSPLOBCreate(
+                            csp_code=csp_code,
+                            lob_type=lob_type,
+                            description=description,
+                            status=status,
+                            project_id=project_id
+                        )
+                        mapping = csp_lob_service.create_csp_lob(mapping_data)
+                        st.success(f"Mapping created successfully: {mapping.csp_code}")
+                        st.session_state.show_new_mapping = False
+                    except Exception as e:
+                        st.error(f"Error creating mapping: {str(e)}")
+    
+    # Import/Export Section
+    st.subheader("Data Operations")
+    col1, col2 = st.columns(2)
+    
     with col1:
-        status_filter = st.selectbox(
+        uploaded_file = st.file_uploader("Import CSP LOB Mappings (CSV)", type=['csv'])
+        if uploaded_file:
+            try:
+                df = pd.read_csv(uploaded_file)
+                for _, row in df.iterrows():
+                    mapping_data = CSPLOBCreate(**row.to_dict())
+                    csp_lob_service.create_csp_lob(mapping_data)
+                st.success("Import completed successfully")
+            except Exception as e:
+                st.error(f"Import error: {str(e)}")
+    
+    with col2:
+        if st.button("Export Mappings"):
+            try:
+                mappings = csp_lob_service.get_all_csp_lobs()
+                if mappings:
+                    df = pd.DataFrame([vars(m) for m in mappings])
+                    csv = df.to_csv(index=False)
+                    st.download_button(
+                        "Download CSV",
+                        csv,
+                        "csp_lob_mappings.csv",
+                        "text/csv"
+                    )
+            except Exception as e:
+                st.error(f"Export error: {str(e)}")
+    
+    # Mapping List Section
+    st.subheader("CSP LOB Mappings")
+    
+    # Filters
+    col1, col2 = st.columns(2)
+    with col1:
+        status_filter = st.multiselect(
             "Status",
-            ["All", "Active", "Pending", "Terminated"]
+            ["Active", "Inactive", "Pending"],
+            default=["Active"]
         )
     with col2:
-        lob_filter = st.selectbox(
+        lob_filter = st.multiselect(
             "LOB Type",
-            ["All", "Medical", "Pharmacy", "Dental", "Vision"]
+            ["Medical", "Dental", "Vision", "Pharmacy", "Other"]
         )
-    with col3:
-        search = st.text_input("Search", placeholder="Search CSP codes...")
-
+    
     try:
-        db = next(get_db())
-        # Query to get CSP LOB mappings
-        query = """
-        SELECT 
-            CSPCode,
-            LOBType,
-            [Description],
-            [Status],
-            EffectiveDate,
-            TerminationDate,
-            LastEditDate,
-            LastEditMSID
-        FROM CS_EXP_CSP_LOB WITH (NOLOCK)
-        WHERE 1=1
-        """
-        
-        params = []
-        if status_filter != "All":
-            query += " AND Status = ?"
-            params.append(status_filter)
-        if lob_filter != "All":
-            query += " AND LOBType = ?"
-            params.append(lob_filter)
-        if search:
-            query += " AND CSPCode LIKE ?"
-            params.append(f"%{search}%")
+        mappings = csp_lob_service.get_all_csp_lobs()
+        if mappings:
+            # Apply filters
+            filtered_mappings = [
+                m for m in mappings
+                if (not status_filter or m.status in status_filter) and
+                   (not lob_filter or m.lob_type in lob_filter)
+            ]
             
-        query += " ORDER BY LastEditDate DESC"
-        
-        df = pd.read_sql(query, db.bind, params=params)
-        
-        if not df.empty:
-            # Format dates for display
-            for date_col in ['EffectiveDate', 'TerminationDate', 'LastEditDate']:
-                if date_col in df.columns:
-                    df[date_col] = pd.to_datetime(df[date_col]).dt.strftime('%Y-%m-%d')
+            # Convert to DataFrame for display
+            df_mappings = pd.DataFrame([vars(m) for m in filtered_mappings])
             
-            st.dataframe(
-                df,
-                column_config={
-                    "CSPCode": "CSP Code",
-                    "LOBType": "LOB Type",
-                    "Description": "Description",
-                    "Status": "Status",
-                    "EffectiveDate": "Effective Date",
-                    "TerminationDate": "Termination Date",
-                    "LastEditDate": "Last Updated",
-                    "LastEditMSID": "Last Editor"
-                },
-                hide_index=True
-            )
-        else:
-            st.info("No CSP LOB mappings found matching the criteria.")
-
-        # Bulk Operations
-        if not df.empty:
-            st.divider()
-            st.subheader("Bulk Operations")
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                bulk_status = st.selectbox(
-                    "Update Status",
-                    ["Select Status...", "Active", "Terminated"]
+            # Bulk Actions
+            if len(filtered_mappings) > 0:
+                selected_mappings = st.multiselect(
+                    "Select Mappings for Bulk Actions",
+                    df_mappings['csp_code'].tolist()
                 )
-                if st.button("Update Selected"):
-                    st.warning("Bulk status update not implemented yet")
-            
-            with col2:
-                uploaded_file = st.file_uploader(
-                    "Import Mappings",
-                    type=['csv', 'xlsx']
-                )
-                if uploaded_file is not None:
-                    st.warning("File import not implemented yet")
-
-    except Exception as e:
-        st.error(f"Error loading CSP LOB mappings: {str(e)}")
-    finally:
-        db.close()
-
-def create_new_mapping():
-    """Create new CSP LOB mapping form"""
-    st.subheader("Create New CSP LOB Mapping")
-    
-    with st.form("new_mapping_form"):
-        csp_code = st.text_input(
-            "CSP Code *",
-            placeholder="Enter CSP code"
-        )
-        
-        lob_type = st.selectbox(
-            "LOB Type *",
-            ["Medical", "Pharmacy", "Dental", "Vision"]
-        )
-        
-        description = st.text_area(
-            "Description",
-            placeholder="Enter description"
-        )
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            effective_date = st.date_input(
-                "Effective Date *",
-                min_value=datetime.now().date()
-            )
-        
-        with col2:
-            termination_date = st.date_input(
-                "Termination Date",
-                value=None,
-                min_value=effective_date if effective_date else None
-            )
-        
-        submitted = st.form_submit_button("Create Mapping")
-        
-        if submitted:
-            if not all([csp_code, lob_type, effective_date]):
-                st.error("Please fill in all required fields (*)")
-                return
-            
-            try:
-                # Validate CSP code format
-                if not CSPLOBValidator.validate_csp_code(csp_code):
-                    st.error("Invalid CSP code format")
-                    return
                 
-                # Validate dates
-                if termination_date and not CSPLOBValidator.validate_dates(
-                    effective_date, termination_date
-                ):
-                    st.error("Termination date must be after effective date")
-                    return
-                
-                db = next(get_db())
-                query = """
-                INSERT INTO CS_EXP_CSP_LOB (
-                    CSPCode,
-                    LOBType,
-                    [Description],
-                    [Status],
-                    EffectiveDate,
-                    TerminationDate,
-                    LastEditDate,
-                    LastEditMSID
-                ) VALUES (?, ?, ?, ?, ?, ?, GETDATE(), ?)
-                """
-                
-                params = [
-                    csp_code,
-                    lob_type,
-                    description,
-                    'Active',
-                    effective_date,
-                    termination_date,
-                    st.session_state.get('user', 'Unknown')
-                ]
-                
-                db.execute(query, params)
-                db.commit()
-                st.success("CSP LOB mapping created successfully!")
-                
-                # Return to main view
-                st.session_state.current_view = 'list'
-                st.rerun()
-                
-            except Exception as e:
-                st.error(f"Error creating CSP LOB mapping: {str(e)}")
-                db.rollback()
-            finally:
-                db.close()
-
-def handle_file_upload():
-    """Handle CSP LOB mapping file upload"""
-    uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
-    if uploaded_file is not None:
-        try:
-            # Read CSV file
-            df = pd.read_csv(uploaded_file)
-            
-            # Validate required columns
-            required_columns = ['csp_code', 'lob_type', 'description', 'status', 'effective_date']
-            if not all(col in df.columns for col in required_columns):
-                st.error("CSV file must contain all required columns")
-                return
-            
-            # Preview data
-            st.write("Preview of data to be imported:")
-            st.dataframe(df.head())
-            
-            # Validate data
-            validation_errors = []
-            for idx, row in df.iterrows():
-                try:
-                    CSPLOBValidator.validate_csp_code(row['csp_code'])
-                    CSPLOBValidator.validate_dates(
-                        row['effective_date'], 
-                        row.get('termination_date')
+                if selected_mappings:
+                    action = st.selectbox(
+                        "Bulk Action",
+                        ["Update Status", "Delete"]
                     )
-                except ValueError as e:
-                    validation_errors.append(f"Row {idx + 1}: {str(e)}")
+                    
+                    if st.button("Apply Bulk Action"):
+                        try:
+                            if action == "Update Status":
+                                new_status = st.selectbox(
+                                    "New Status",
+                                    ["Active", "Inactive", "Pending"]
+                                )
+                                for code in selected_mappings:
+                                    csp_lob_service.update_csp_lob_status(code, new_status)
+                            elif action == "Delete":
+                                for code in selected_mappings:
+                                    csp_lob_service.delete_csp_lob(code)
+                            st.success("Bulk action completed successfully")
+                        except Exception as e:
+                            st.error(f"Error in bulk operation: {str(e)}")
             
-            if validation_errors:
-                st.error("Validation errors found:")
-                for error in validation_errors:
-                    st.write(error)
-                return
+            # Display mappings
+            st.dataframe(
+                df_mappings,
+                column_config={
+                    "csp_code": "CSP Code",
+                    "lob_type": "LOB Type",
+                    "description": "Description",
+                    "status": "Status",
+                    "project_id": "Project ID"
+                },
+                use_container_width=True
+            )
             
-            # Confirm import
-            if st.button("Confirm Import"):
-                db = next(get_db())
-                service = CSPLOBService(db)
-                
-                success_count = 0
-                error_count = 0
-                
-                for _, row in df.iterrows():
-                    try:
-                        mapping_data = {
-                            "csp_code": row['csp_code'],
-                            "lob_type": row['lob_type'],
-                            "description": row['description'],
-                            "status": row['status'],
-                            "effective_date": row['effective_date'],
-                            "termination_date": row.get('termination_date'),
-                        }
-                        service.create_csp_lob(mapping_data)
-                        success_count += 1
-                    except Exception as e:
-                        error_count += 1
-                        logger.error(f"Error importing row: {str(e)}")
-                
-                st.success(f"Import completed: {success_count} successful, {error_count} failed")
-                
-        except Exception as e:
-            st.error(f"Error processing file: {str(e)}")
-            logger.error(f"File upload error: {str(e)}")
-
-def download_template():
-    """Provide template download"""
-    template_data = pd.DataFrame({
-        'csp_code': ['ABC123'],
-        'lob_type': ['Medical'],
-        'description': ['Sample Description'],
-        'status': ['Active'],
-        'effective_date': ['2024-01-01'],
-        'termination_date': ['2024-12-31']
-    })
-    
-    csv = template_data.to_csv(index=False)
-    st.download_button(
-        label="Download Template",
-        data=csv,
-        file_name="csp_lob_template.csv",
-        mime="text/csv"
-    )
+    except Exception as e:
+        st.error(f"Error loading mappings: {str(e)}")

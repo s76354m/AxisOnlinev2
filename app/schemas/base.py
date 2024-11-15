@@ -1,6 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, Any
 
-class BaseResponse(BaseModel):
-    """Base response model with common fields"""
-    class Config:
-        orm_mode = True 
+class BaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+class BaseResponse(BaseSchema):
+    success: bool
+    message: str
+    data: Optional[Any] = None 

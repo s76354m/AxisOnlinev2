@@ -3,9 +3,11 @@ import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.db.base import Base
+from app.database import get_db
+from app.models.base import Base
 from app.core.config import settings
 from app.models.project import Project
 from app.models.csp_lob import CSPLOB
@@ -14,8 +16,13 @@ from app.models.y_line import YLine
 @pytest.fixture(scope="session")
 def driver():
     """Setup WebDriver for tests"""
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run in headless mode
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    
     service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.implicitly_wait(10)
     yield driver
     driver.quit()
@@ -27,32 +34,22 @@ def base_url():
 
 @pytest.fixture(scope="session")
 def engine():
-    """Create test database engine"""
-    return create_engine(
-        settings.TEST_DATABASE_URL,
-        echo=settings.DB_ECHO
-    )
+    return create_engine("sqlite:///./test.db")
 
 @pytest.fixture(scope="session")
-def tables(engine):
-    """Create all tables for testing"""
-    Base.metadata.create_all(engine)
-    yield
-    Base.metadata.drop_all(engine)
+def TestingSessionLocal(engine):
+    Base.metadata.create_all(bind=engine)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    return SessionLocal
 
 @pytest.fixture
-def db_session(engine, tables):
-    """Create a new database session for a test"""
-    connection = engine.connect()
-    transaction = connection.begin()
-    Session = sessionmaker(bind=connection)
-    session = Session()
-
-    yield session
-
-    session.close()
-    transaction.rollback()
-    connection.close()
+def db_session(TestingSessionLocal):
+    session = TestingSessionLocal()
+    try:
+        yield session
+    finally:
+        session.rollback()
+        session.close()
 
 @pytest.fixture
 def test_project(db_session):

@@ -1,77 +1,124 @@
 """Main UI module for Axis Program Management"""
 import streamlit as st
-import logging
-from datetime import datetime
+from typing import Optional
 from app.ui.pages import (
     dashboard,
     project_management,
     csp_lob_management,
-    competitor_management,
+    y_line_management,
     service_area_management,
-    y_line_management
+    competitor_management,
+    notes_management
 )
 
-logger = logging.getLogger(__name__)
-
-def initialize_session_state():
-    """Initialize session state variables"""
-    if 'current_page' not in st.session_state:
-        st.session_state.current_page = "Projects"
-    if 'current_view' not in st.session_state:
-        st.session_state.current_view = "list"
-    if 'selected_project' not in st.session_state:
-        st.session_state.selected_project = None
-
-def main():
-    """Main entry point for the UI"""
-    try:
+class AxisProgramUI:
+    def __init__(self):
+        self.setup_session_state()
+        self.setup_page_config()
+        self.init_session_vars()
+    
+    def setup_session_state(self):
+        if 'current_page' not in st.session_state:
+            st.session_state.current_page = 'Dashboard'
+        if 'show_new_project' not in st.session_state:
+            st.session_state.show_new_project = False
+    
+    def setup_page_config(self):
         st.set_page_config(
-            page_title="Axis Program Management",
-            page_icon="🏢",
+            page_title="Axis Program",
             layout="wide",
             initial_sidebar_state="expanded"
         )
-
-        initialize_session_state()
-
-        # Sidebar navigation
+    
+    def init_session_vars(self):
+        """Initialize session variables for UI state"""
+        if 'filters' not in st.session_state:
+            st.session_state.filters = {
+                'project_status': 'All',
+                'date_range': 'Last 30 days',
+                'analyst': 'All'
+            }
+    
+    def render_navigation(self):
         with st.sidebar:
             st.title("Navigation")
             
-            selected_page = st.radio(
+            # Main Navigation
+            selected_page = st.selectbox(
                 "Select Page",
-                ["Dashboard", "Projects", "CSP LOB", "Competitors", 
-                 "Service Areas", "Y-Line"]
+                [
+                    'Dashboard',
+                    'Projects',
+                    'CSP LOB',
+                    'Y-Line',
+                    'Service Areas',
+                    'Competitors',
+                    'Notes'
+                ]
             )
             
-            # Update current page in session state
-            st.session_state.current_page = selected_page
+            # Quick Actions Section
+            st.sidebar.markdown("---")
+            st.sidebar.subheader("Quick Actions")
             
-            st.divider()
-            st.markdown("### Settings")
-            st.checkbox("Verbose Logging", key="verbose_logging")
+            col1, col2 = st.sidebar.columns(2)
+            with col1:
+                if st.button("New Project"):
+                    st.session_state.current_page = 'Projects'
+                    st.session_state.show_new_project = True
+                if st.button("New Note"):
+                    st.session_state.current_page = 'Notes'
+                    st.session_state.show_new_note = True
             
-            st.divider()
-            st.markdown("### User Info")
-            st.text(f"Last Update: {datetime.now():%Y-%m-%d %H:%M}")
+            with col2:
+                if st.button("New CSP LOB"):
+                    st.session_state.current_page = 'CSP LOB'
+                    st.session_state.show_new_mapping = True
+                if st.button("New Y-Line"):
+                    st.session_state.current_page = 'Y-Line'
+                    st.session_state.show_new_yline = True
+            
+            # Filters Section
+            st.sidebar.markdown("---")
+            st.sidebar.subheader("Filters")
+            st.session_state.filters['project_status'] = st.sidebar.selectbox(
+                "Project Status",
+                ['All', 'New', 'Active', 'Completed', 'On Hold']
+            )
+            st.session_state.filters['date_range'] = st.sidebar.selectbox(
+                "Date Range",
+                ['Last 7 days', 'Last 30 days', 'Last 90 days', 'All time']
+            )
+            
+            return selected_page
 
-        # Main content area
-        if selected_page == "Dashboard":
+def main():
+    try:
+        app = AxisProgramUI()
+        page = app.render_navigation()
+        
+        # Render breadcrumb navigation
+        st.markdown(f"**Navigation:** {page}")
+        
+        # Render selected page
+        if page == 'Dashboard':
             dashboard.render_page()
-        elif selected_page == "Projects":
+        elif page == 'Projects':
             project_management.render_page()
-        elif selected_page == "CSP LOB":
+        elif page == 'CSP LOB':
             csp_lob_management.render_page()
-        elif selected_page == "Competitors":
-            competitor_management.render_page()
-        elif selected_page == "Service Areas":
-            service_area_management.render_page()
-        elif selected_page == "Y-Line":
+        elif page == 'Y-Line':
             y_line_management.render_page()
-
+        elif page == 'Service Areas':
+            service_area_management.render_page()
+        elif page == 'Competitors':
+            competitor_management.render_page()
+        elif page == 'Notes':
+            notes_management.render_page()
+            
     except Exception as e:
-        logger.error(f"Error in main UI: {str(e)}")
-        st.error("An error occurred. Please try again or contact support.")
+        st.error(f"Error in main UI: {str(e)}")
+        st.exception(e)  # Display detailed error information
 
 if __name__ == "__main__":
     main()

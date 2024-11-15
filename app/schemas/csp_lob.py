@@ -1,33 +1,16 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime
-from .base import BaseResponse
-from app.models.csp_lob import LOBType, CSPStatus
+from pydantic import BaseModel
+from typing import Optional
+from .base import BaseSchema, BaseResponse
 
-class CSPLOBBase(BaseModel):
-    csp_code: str = Field(..., description="CSP identifier code")
-    lob_type: LOBType
+class CSPLOBBase(BaseSchema):
+    csp_code: str
+    lob_type: str
     description: Optional[str] = None
-    status: CSPStatus = CSPStatus.ACTIVE
-    effective_date: Optional[datetime] = None
-    termination_date: Optional[datetime] = None
+    status: str = "Active"
 
 class CSPLOBCreate(CSPLOBBase):
-    project_id: int
+    project_id: str
 
-class CSPLOBUpdate(BaseModel):
-    csp_code: Optional[str] = None
-    lob_type: Optional[LOBType] = None
+class CSPLOBUpdate(BaseSchema):
     description: Optional[str] = None
-    status: Optional[CSPStatus] = None
-    effective_date: Optional[datetime] = None
-    termination_date: Optional[datetime] = None
-
-class CSPLOBResponse(CSPLOBBase, BaseResponse):
-    id: int
-    project_id: int
-    created_at: datetime
-    updated_at: Optional[datetime]
-
-    class Config:
-        orm_mode = True 
+    status: Optional[str] = None 

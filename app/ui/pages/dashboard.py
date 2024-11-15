@@ -1,103 +1,103 @@
 """Dashboard page implementation"""
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 from datetime import datetime, timedelta
-from app.db.session import get_db
+from app.services.project_service import ProjectService
+from app.services.csp_lob_service import CSPLOBService
+from app.services.y_line_service import YLineService
 
 def render_page():
-    """Render dashboard page"""
-    st.title("Dashboard")
-
-    # Metrics Row
-    col1, col2, col3, col4 = st.columns(4)
+    st.title("Project Dashboard")
     
     try:
-        db = next(get_db())
+        # Initialize services
+        project_service = ProjectService()
+        csp_lob_service = CSPLOBService()
+        y_line_service = YLineService()
         
-        # Active Projects
+        # Top-level metrics
+        col1, col2, col3, col4 = st.columns(4)
+        
         with col1:
-            active_query = """
-            SELECT COUNT(*) as count 
-            FROM CS_EXP_Project_Translation WITH (NOLOCK)
-            WHERE Status IN ('New', 'Active')
-            """
-            active_df = pd.read_sql(active_query, db.bind)
-            st.metric("Active Projects", active_df['count'].iloc[0])
-
-        # Projects in Review
+            projects = project_service.get_all_projects()
+            st.metric("Total Projects", len(projects))
+        
         with col2:
-            review_query = """
-            SELECT COUNT(*) as count 
-            FROM CS_EXP_Project_Translation WITH (NOLOCK)
-            WHERE Status = 'Review'
-            """
-            review_df = pd.read_sql(review_query, db.bind)
-            st.metric("In Review", review_df['count'].iloc[0])
-
-        # Completed This Month
+            active_projects = len([p for p in projects if p.Status == "Active"])
+            st.metric("Active Projects", active_projects)
+        
         with col3:
-            completed_query = """
-            SELECT COUNT(*) as count 
-            FROM CS_EXP_Project_Translation WITH (NOLOCK)
-            WHERE Status = 'Completed' 
-            AND LastEditDate >= DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)
-            """
-            completed_df = pd.read_sql(completed_query, db.bind)
-            st.metric("Completed (This Month)", completed_df['count'].iloc[0])
-
-        # Total Projects
+            csp_lobs = csp_lob_service.get_all_csp_lobs()
+            st.metric("LOB Mappings", len(csp_lobs))
+        
         with col4:
-            total_query = """
-            SELECT COUNT(*) as count 
-            FROM CS_EXP_Project_Translation WITH (NOLOCK)
-            """
-            total_df = pd.read_sql(total_query, db.bind)
-            st.metric("Total Projects", total_df['count'].iloc[0])
-
-        # Recent Activity
+            y_lines = y_line_service.get_all_y_lines()
+            st.metric("Y-Lines", len(y_lines))
+        
+        # Charts section
+        st.subheader("Analytics")
+        chart_col1, chart_col2 = st.columns(2)
+        
+        with chart_col1:
+            # Project Status Distribution
+            if projects:
+                df_projects = pd.DataFrame([vars(p) for p in projects])
+                fig1 = px.pie(df_projects, names='Status', 
+                             title='Project Status Distribution')
+                st.plotly_chart(fig1, use_container_width=True)
+        
+        with chart_col2:
+            # Project Timeline
+            if projects:
+                df_timeline = pd.DataFrame([{
+                    'Project': p.ProjectID,
+                    'Start': p.CreatedDate,
+                    'End': p.LastEditDate
+                } for p in projects])
+                fig2 = px.timeline(df_timeline, x_start='Start', x_end='End',
+                                 y='Project', title='Project Timeline')
+                st.plotly_chart(fig2, use_container_width=True)
+        
+        # Recent Activity Feed
         st.subheader("Recent Activity")
-        recent_query = """
-        SELECT TOP 10
-            p.ProjectID,
-            p.ProjectType,
-            p.Status,
-            p.LastEditMSID as Editor,
-            CONVERT(VARCHAR(23), p.LastEditDate, 126) as EditDate
-        FROM CS_EXP_Project_Translation p WITH (NOLOCK)
-        ORDER BY p.LastEditDate DESC
-        """
-        recent_df = pd.read_sql(recent_query, db.bind)
+        tabs = st.tabs(["Projects", "CSP LOB", "Y-Lines"])
         
-        if not recent_df.empty:
-            st.dataframe(
-                recent_df,
-                column_config={
-                    "ProjectID": "Project ID",
-                    "ProjectType": "Type",
-                    "Status": "Status",
-                    "Editor": "Last Editor",
-                    "EditDate": "Edit Date"
-                },
-                hide_index=True
-            )
-        else:
-            st.info("No recent activity found.")
-
-        # Status Distribution Chart
-        st.subheader("Project Status Distribution")
-        status_query = """
-        SELECT 
-            Status,
-            COUNT(*) as Count
-        FROM CS_EXP_Project_Translation WITH (NOLOCK)
-        GROUP BY Status
-        """
-        status_df = pd.read_sql(status_query, db.bind)
+        with tabs[0]:
+            if projects:
+                recent_projects = sorted(
+                    projects, 
+                    key=lambda x: x.LastEditDate, 
+                    reverse=True
+                )[:5]
+                for project in recent_projects:
+                    with st.expander(
+                        f"Project: {project.ProjectID} - {project.ProjectType}"
+                    ):
+                        cols = st.columns(3)
+                        with cols[0]:
+                            st.write(f"Status: {project.Status}")
+                        with cols[1]:
+                            st.write(f"PM: {project.PM}")
+                        with cols[2]:
+                            st.write(
+                                f"Last Updated: {project.LastEditDate.strftime('%Y-%m-%d')}"
+                            )
         
-        if not status_df.empty:
-            st.bar_chart(status_df.set_index('Status'))
-
+        with tabs[1]:
+            if csp_lobs:
+                for lob in csp_lobs[:5]:
+                    with st.expander(f"CSP: {lob.csp_code}"):
+                        st.write(f"Type: {lob.lob_type}")
+                        st.write(f"Status: {lob.status}")
+        
+        with tabs[2]:
+            if y_lines:
+                for y_line in y_lines[:5]:
+                    with st.expander(f"Y-Line: {y_line.ipa_number}"):
+                        st.write(f"Product: {y_line.product_code}")
+                        st.write(f"Status: {y_line.status}")
+        
     except Exception as e:
         st.error(f"Error loading dashboard: {str(e)}")
-    finally:
-        db.close() 
+        st.exception(e)
