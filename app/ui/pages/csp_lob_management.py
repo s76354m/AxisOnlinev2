@@ -1,128 +1,148 @@
+"""CSP LOB Management page"""
 import streamlit as st
-from datetime import datetime
-from typing import Optional
+import pandas as pd
 from app.services.csp_lob_service import CSPLOBService
-from app.models.csp_lob import LOBType, CSPStatus
-from app.schemas.csp_lob import CSPLOBCreate, CSPLOBUpdate
+from app.schemas.csp_lob import CSPLOBCreate
+import io
 
-def render_csp_lob_page(db_session):
+def render_page():
     st.title("CSP Line of Business Management")
+    csp_lob_service = CSPLOBService()
     
-    # Initialize service
-    csp_service = CSPLOBService(db_session)
-    
-    # Sidebar for filtering and actions
-    with st.sidebar:
-        st.subheader("Actions")
-        action = st.radio(
-            "Select Action",
-            ["View/Edit Mappings", "Create New Mapping", "Bulk Operations"]
-        )
-        
-        # Filters
-        st.subheader("Filters")
-        selected_lob = st.selectbox(
-            "LOB Type",
-            [None] + list(LOBType),
-            format_func=lambda x: "All" if x is None else x.value
-        )
-        
-        selected_status = st.selectbox(
-            "Status",
-            [None] + list(CSPStatus),
-            format_func=lambda x: "All" if x is None else x.value
-        )
-
-    # Main content area
-    if action == "Create New Mapping":
-        render_create_form(csp_service)
-    elif action == "View/Edit Mappings":
-        render_mapping_list(csp_service, selected_lob, selected_status)
-    else:
-        render_bulk_operations(csp_service)
-
-def render_create_form(csp_service):
-    st.subheader("Create New CSP LOB Mapping")
-    
-    with st.form("create_csp_lob"):
-        project_id = st.number_input("Project ID", min_value=1, step=1)
-        csp_code = st.text_input("CSP Code")
-        lob_type = st.selectbox("LOB Type", list(LOBType))
-        description = st.text_area("Description")
-        status = st.selectbox("Status", list(CSPStatus))
-        
-        col1, col2 = st.columns(2)
-        with col1:
-            effective_date = st.date_input("Effective Date")
-        with col2:
-            termination_date = st.date_input("Termination Date")
+    # Create New Mapping Section
+    with st.expander("Create New CSP LOB Mapping", expanded=st.session_state.get('show_new_mapping', False)):
+        with st.form("new_mapping_form"):
+            csp_code = st.text_input("CSP Code*")
+            lob_type = st.selectbox(
+                "LOB Type*",
+                ["Medical", "Dental", "Vision", "Pharmacy", "Other"]
+            )
+            description = st.text_area("Description*")
+            status = st.selectbox("Status*", ["Active", "Inactive", "Pending"])
+            project_id = st.text_input("Project ID*")
             
-        submit = st.form_submit_button("Create Mapping")
-        
-        if submit:
+            submitted = st.form_submit_button("Create Mapping")
+            if submitted:
+                if not all([csp_code, lob_type, description, status, project_id]):
+                    st.error("Please fill in all required fields")
+                else:
+                    try:
+                        mapping_data = CSPLOBCreate(
+                            csp_code=csp_code,
+                            lob_type=lob_type,
+                            description=description,
+                            status=status,
+                            project_id=project_id
+                        )
+                        mapping = csp_lob_service.create_csp_lob(mapping_data)
+                        st.success(f"Mapping created successfully: {mapping.csp_code}")
+                        st.session_state.show_new_mapping = False
+                    except Exception as e:
+                        st.error(f"Error creating mapping: {str(e)}")
+    
+    # Import/Export Section
+    st.subheader("Data Operations")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        uploaded_file = st.file_uploader("Import CSP LOB Mappings (CSV)", type=['csv'])
+        if uploaded_file:
             try:
-                data = CSPLOBCreate(
-                    project_id=project_id,
-                    csp_code=csp_code,
-                    lob_type=lob_type,
-                    description=description,
-                    status=status,
-                    effective_date=datetime.combine(effective_date, datetime.min.time()),
-                    termination_date=datetime.combine(termination_date, datetime.min.time())
-                )
-                csp_service.create_csp_lob(data)
-                st.success("CSP LOB Mapping created successfully!")
+                df = pd.read_csv(uploaded_file)
+                for _, row in df.iterrows():
+                    mapping_data = CSPLOBCreate(**row.to_dict())
+                    csp_lob_service.create_csp_lob(mapping_data)
+                st.success("Import completed successfully")
             except Exception as e:
-                st.error(f"Error creating mapping: {str(e)}")
-
-def render_mapping_list(csp_service, lob_type: Optional[LOBType], status: Optional[CSPStatus]):
+                st.error(f"Import error: {str(e)}")
+    
+    with col2:
+        if st.button("Export Mappings"):
+            try:
+                mappings = csp_lob_service.get_all_csp_lobs()
+                if mappings:
+                    df = pd.DataFrame([vars(m) for m in mappings])
+                    csv = df.to_csv(index=False)
+                    st.download_button(
+                        "Download CSV",
+                        csv,
+                        "csp_lob_mappings.csv",
+                        "text/csv"
+                    )
+            except Exception as e:
+                st.error(f"Export error: {str(e)}")
+    
+    # Mapping List Section
     st.subheader("CSP LOB Mappings")
     
-    # Get mappings with filters
-    mappings = csp_service.get_project_csp_lobs(
-        project_id=st.session_state.get('current_project_id'),
-        lob_type=lob_type,
-        status=status
-    )
+    # Filters
+    col1, col2 = st.columns(2)
+    with col1:
+        status_filter = st.multiselect(
+            "Status",
+            ["Active", "Inactive", "Pending"],
+            default=["Active"]
+        )
+    with col2:
+        lob_filter = st.multiselect(
+            "LOB Type",
+            ["Medical", "Dental", "Vision", "Pharmacy", "Other"]
+        )
     
-    # Display mappings in a dataframe
-    if mappings:
-        mapping_data = [{
-            'ID': m.id,
-            'CSP Code': m.csp_code,
-            'LOB Type': m.lob_type.value,
-            'Status': m.status.value,
-            'Effective Date': m.effective_date.date(),
-            'Termination Date': m.termination_date.date() if m.termination_date else None
-        } for m in mappings]
-        
-        df = pd.DataFrame(mapping_data)
-        st.dataframe(df)
-        
-        # Edit selected mapping
-        if st.button("Edit Selected"):
-            selected_rows = df.index[df['Selected']].tolist()
-            if selected_rows:
-                render_edit_form(csp_service, mappings[selected_rows[0]])
-    else:
-        st.info("No mappings found with the selected filters.")
-
-def render_bulk_operations(csp_service):
-    st.subheader("Bulk Operations")
-    
-    operation = st.selectbox(
-        "Select Operation",
-        ["Bulk Status Update", "Bulk Delete", "Bulk Import"]
-    )
-    
-    if operation == "Bulk Status Update":
-        new_status = st.selectbox("New Status", list(CSPStatus))
-        if st.button("Update Selected"):
-            # Implementation for bulk status update
-            pass
+    try:
+        mappings = csp_lob_service.get_all_csp_lobs()
+        if mappings:
+            # Apply filters
+            filtered_mappings = [
+                m for m in mappings
+                if (not status_filter or m.status in status_filter) and
+                   (not lob_filter or m.lob_type in lob_filter)
+            ]
             
-    elif operation == "Bulk Import":
-        uploaded_file = st.file_uploader("Upload CSV", type=['csv'])
-        if uploaded_file is not None:
-            # Implementation for bulk import
-            pass 
+            # Convert to DataFrame for display
+            df_mappings = pd.DataFrame([vars(m) for m in filtered_mappings])
+            
+            # Bulk Actions
+            if len(filtered_mappings) > 0:
+                selected_mappings = st.multiselect(
+                    "Select Mappings for Bulk Actions",
+                    df_mappings['csp_code'].tolist()
+                )
+                
+                if selected_mappings:
+                    action = st.selectbox(
+                        "Bulk Action",
+                        ["Update Status", "Delete"]
+                    )
+                    
+                    if st.button("Apply Bulk Action"):
+                        try:
+                            if action == "Update Status":
+                                new_status = st.selectbox(
+                                    "New Status",
+                                    ["Active", "Inactive", "Pending"]
+                                )
+                                for code in selected_mappings:
+                                    csp_lob_service.update_csp_lob_status(code, new_status)
+                            elif action == "Delete":
+                                for code in selected_mappings:
+                                    csp_lob_service.delete_csp_lob(code)
+                            st.success("Bulk action completed successfully")
+                        except Exception as e:
+                            st.error(f"Error in bulk operation: {str(e)}")
+            
+            # Display mappings
+            st.dataframe(
+                df_mappings,
+                column_config={
+                    "csp_code": "CSP Code",
+                    "lob_type": "LOB Type",
+                    "description": "Description",
+                    "status": "Status",
+                    "project_id": "Project ID"
+                },
+                use_container_width=True
+            )
+            
+    except Exception as e:
+        st.error(f"Error loading mappings: {str(e)}")
