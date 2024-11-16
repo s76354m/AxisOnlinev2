@@ -43,12 +43,8 @@ Launch Commands:
 # Activate virtual environment
 source venv/bin/activate
 
-# Set environment variables
-export FLASK_ENV=development
-export FLASK_APP=app.main
-
-# Start the application
-flask run --port 5000
+# Start Streamlit application
+streamlit run app/main.py
 ```
 
 2. Run Test Suites:
@@ -78,9 +74,16 @@ startLine: 78
 endLine: 108
 ```
 
-Would you like me to:
-1. Complete the encryption verification tests
-2. Implement concurrent user testing
-3. Add error handling scenarios
+4. Required Environment Variables:
+```bash
+export STREAMLIT_SERVER_PORT=8501
+export STREAMLIT_SERVER_ADDRESS=localhost
+export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+```
 
-Which would you prefer to tackle next?
+Would you like me to:
+1. Add more configuration details
+2. Start exploring the Dashboard UI
+3. Review the test configuration
+
+Which would you prefer?
