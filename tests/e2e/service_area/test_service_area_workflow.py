@@ -321,3 +321,84 @@ class TestServiceAreaGridOperations:
             EC.presence_of_all_elements_located((By.CLASS_NAME, "grid-row"))
         )
         assert len(grid_rows) > 0
+
+class TestServiceAreaDistance:
+    @pytest.fixture(autouse=True)
+    def setup(self, selenium_driver, mock_services):
+        self.driver = selenium_driver
+        self.wait = WebDriverWait(self.driver, 10)
+        self.mock_services = mock_services
+        self.driver.get("/service-areas/distance")
+
+    def test_distance_calculation(self):
+        """Test distance calculation functionality"""
+        # Reference pattern from:
+        ```python:tests/e2e/service_area/test_service_area_workflow.py
+        startLine: 41
+        endLine: 63
+        ```
+        
+        # Select origin point
+        origin_input = self.wait.until(
+            EC.presence_of_element_located((By.ID, "origin-point"))
+        )
+        origin_input.send_keys("12345")  # ZIP code
+        
+        # Select destination areas
+        area_checkboxes = self.wait.until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "area-checkbox"))
+        )
+        area_checkboxes[0].click()
+        area_checkboxes[1].click()
+        
+        # Calculate distances
+        calculate_button = self.driver.find_element(By.ID, "calculate-distance")
+        calculate_button.click()
+        
+        # Verify results
+        distance_results = self.wait.until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "distance-result"))
+        )
+        assert len(distance_results) == 2
+        
+        # Verify distance format
+        for result in distance_results:
+            distance_value = result.find_element(By.CLASS_NAME, "distance-value").text
+            assert "miles" in distance_value
+            assert float(distance_value.split()[0]) > 0
+
+    def test_distance_calculation_error_handling(self):
+        """Test distance calculation error scenarios"""
+        # Reference pattern from:
+        ```python:tests/e2e/dashboard/test_dashboard_workflow.py
+        startLine: 58
+        endLine: 74
+        ```
+        
+        # Invalid ZIP code
+        origin_input = self.wait.until(
+            EC.presence_of_element_located((By.ID, "origin-point"))
+        )
+        origin_input.send_keys("invalid")
+        
+        calculate_button = self.driver.find_element(By.ID, "calculate-distance")
+        calculate_button.click()
+        
+        # Verify error message
+        error_message = self.wait.until(
+            EC.presence_of_element_located((By.CLASS_NAME, "validation-error"))
+        )
+        assert "Invalid ZIP code format" in error_message.text
+        
+        # Test API error
+        self.mock_services.distance_service.calculate.side_effect = Exception("API Error")
+        
+        origin_input.clear()
+        origin_input.send_keys("12345")
+        calculate_button.click()
+        
+        # Verify error handling
+        api_error = self.wait.until(
+            EC.presence_of_element_located((By.CLASS_NAME, "api-error"))
+        )
+        assert "Unable to calculate distance" in api_error.text
