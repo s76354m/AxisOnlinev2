@@ -3,47 +3,69 @@ import pandas as pd
 from app.db.session import get_db
 from datetime import datetime
 import getpass
+from sqlalchemy.exc import SQLAlchemyError
+from app.utils.db_monitor import DatabaseMonitor
+
+db_monitor = DatabaseMonitor()
 
 def display_project_info(project_id):
     """Display project information"""
-    db = next(get_db())
     try:
-        query = """
-        SELECT * FROM CS_EXP_Project_Translation 
-        WHERE ProjectID = ?
-        """
-        df = pd.read_sql(query, db.bind, params=[project_id])
-        
-        if not df.empty:
+        db = next(get_db())
+        try:
+            query = """
+            SELECT * FROM CS_EXP_Project_Translation 
+            WHERE ProjectID = ?
+            """
+            df = pd.read_sql(query, db.bind, params=[project_id])
+            
+            if df.empty:
+                st.warning(f"No project found with ID: {project_id}")
+                return
+            
             project = df.iloc[0]
             
+            # Display project info in columns
             col1, col2 = st.columns(2)
             with col1:
                 st.text_input("Project ID", value=project['ProjectID'], disabled=True)
                 st.text_input("Project Type", value=project['ProjectType'], disabled=True)
-                st.text_area("Description", value=project['ProjectDesc'])
+                st.text_area("Description", value=project['ProjectDesc'], key=f"desc_{project_id}")
             
             with col2:
-                st.text_input("Analyst", value=project['Analyst'])
-                st.text_input("Project Manager", value=project['PM'])
+                st.text_input("Analyst", value=project['Analyst'], key=f"analyst_{project_id}")
+                st.text_input("Project Manager", value=project['PM'], key=f"pm_{project_id}")
+                status_index = ['New', 'Active', 'On Hold', 'Completed'].index(project['Status'])
                 st.selectbox("Status", 
                     options=['New', 'Active', 'On Hold', 'Completed'],
-                    index=['New', 'Active', 'On Hold', 'Completed'].index(project['Status'])
+                    index=status_index,
+                    key=f"status_{project_id}"
                 )
             
-            if st.button("Update Project"):
-                update_project(project_id, {
-                    'ProjectDesc': project['ProjectDesc'],
-                    'Analyst': project['Analyst'],
-                    'PM': project['PM'],
-                    'Status': project['Status'],
-                    'LastEditDate': datetime.now(),
-                    'LastEditMSID': getpass.getuser()
-                })
-                st.success("Project updated successfully!")
-                
+            if st.button("Update Project", key=f"update_{project_id}"):
+                try:
+                    update_project(project_id, {
+                        'ProjectDesc': st.session_state[f"desc_{project_id}"],
+                        'Analyst': st.session_state[f"analyst_{project_id}"],
+                        'PM': st.session_state[f"pm_{project_id}"],
+                        'Status': st.session_state[f"status_{project_id}"],
+                        'LastEditDate': datetime.now(),
+                        'LastEditMSID': getpass.getuser()
+                    })
+                    st.success("Project updated successfully!")
+                    db_monitor.log_operation('project_update', 'success', f"Project ID: {project_id}")
+                except SQLAlchemyError as e:
+                    db_monitor.log_error('project_update', e)
+                    st.error(f"Database error while updating project: {str(e)}")
+                except Exception as e:
+                    st.error(f"Error updating project: {str(e)}")
+        
+        except SQLAlchemyError as e:
+            db_monitor.log_error('project_query', e)
+            st.error(f"Database error while loading project: {str(e)}")
+            
     except Exception as e:
-        st.error(f"Error loading project details: {str(e)}")
+        st.error(f"Error establishing database connection: {str(e)}")
     finally:
         db.close()
 

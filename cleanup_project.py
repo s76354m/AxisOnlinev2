@@ -43,7 +43,6 @@ def cleanup_project():
         'app/models/csp_lob',
         'app/models/project',
         'app/models/y_line',
-        'app/services/base.py',
         'app/services/competitor',
         'app/services/csp_lob',
         'app/services/notes',
@@ -69,7 +68,8 @@ def cleanup_project():
         'azure-pipelines.yml',
         'docker-compose.yml',
         'Dockerfile',
-        'Dockerfile.test'
+        'Dockerfile.test',
+        'app/services/base.py'
     ]
     
     # Step 1: Compare and merge files

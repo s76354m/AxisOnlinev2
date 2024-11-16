@@ -1,44 +1,36 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
-from app.core.config import settings
-import logging
+from sqlalchemy.exc import SQLAlchemyError
+from app.core.config import Settings
+from app.utils.db_monitor import DatabaseMonitor
 
-# Set up logging
-logger = logging.getLogger(__name__)
+settings = Settings()
+db_monitor = DatabaseMonitor()
 
+# Create engine using the settings
 try:
-    # Create engine using Windows Authentication
-    engine = create_engine(
-        settings.DATABASE_URL,
-        echo=settings.DB_ECHO,
-        pool_pre_ping=True
-    )
+    engine = create_engine(settings.DATABASE_URL, echo=settings.DB_ECHO)
+    
+    @event.listens_for(engine, 'connect')
+    def receive_connect(dbapi_connection, connection_record):
+        db_monitor.log_operation('connection', 'success')
+    
+    @event.listens_for(engine, 'disconnect')
+    def receive_disconnect(dbapi_connection, connection_record):
+        db_monitor.log_operation('disconnection', 'success')
 
-    # Test the connection
-    with engine.connect() as connection:
-        logger.info("Successfully connected to database")
-
-except Exception as e:
-    logger.error(f"Error connecting to database: {str(e)}")
+except SQLAlchemyError as e:
+    db_monitor.log_error('engine_creation', e)
     raise
 
-# Create session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():
-    """Get database session"""
     db = SessionLocal()
     try:
         yield db
+    except SQLAlchemyError as e:
+        db_monitor.log_error('session_creation', e)
+        raise
     finally:
         db.close()
-
-def init_db():
-    """Initialize database with required tables"""
-    from app.db.base import Base  # Import all models here
-    try:
-        Base.metadata.create_all(bind=engine)
-        logger.info("Database tables created successfully")
-    except Exception as e:
-        logger.error(f"Error creating database tables: {str(e)}")
-        raise 

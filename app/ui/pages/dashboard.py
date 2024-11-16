@@ -6,9 +6,37 @@ from datetime import datetime, timedelta
 from app.services.project_service import ProjectService
 from app.services.csp_lob_service import CSPLOBService
 from app.services.y_line_service import YLineService
+from app.utils.db_monitor import display_db_monitor
+from app.db.session import engine
+from sqlalchemy import text
+
+def test_connection():
+    """Test database connection"""
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+            return result.scalar() == 1, "Database connection successful"
+    except Exception as e:
+        return False, f"Database connection error: {str(e)}"
 
 def render_page():
     st.title("Project Dashboard")
+    
+    # Database Status Section
+    with st.expander("Database Status", expanded=True):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            status, message = test_connection()
+            if status:
+                st.success(message)
+            else:
+                st.error(message)
+        with col2:
+            if st.button("Test Connection"):
+                st.rerun()
+        
+        # Display DB Monitor
+        display_db_monitor()
     
     try:
         # Initialize services
