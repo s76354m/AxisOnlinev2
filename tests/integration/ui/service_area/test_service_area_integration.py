@@ -4,28 +4,22 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from tests.ui.base_test import BaseUITest
 
-class TestServiceAreaIntegration:
-    @pytest.fixture(autouse=True)
-    def setup(self, selenium_driver, mock_services):
-        self.driver = selenium_driver
-        self.wait = WebDriverWait(self.driver, 10)
-        self.mock_services = mock_services
+class TestServiceAreaIntegration(BaseUITest):
+    def setup(self):
         self.driver.get("/service-areas")
 
     def test_complete_area_selection_workflow(self):
         """Test complete area selection workflow with backend integration"""
-        # Reference existing workflow pattern from:
-        ```python:tests/e2e/dashboard/test_dashboard_workflow.py
-        startLine: 15
-        endLine: 31
-        ```
-        
         # Setup mock data
         self.mock_services.area_service.get_available_areas.return_value = [
             {"id": "A1", "name": "Area 1", "coordinates": [(0,0), (1,1)]},
             {"id": "A2", "name": "Area 2", "coordinates": [(1,1), (2,2)]}
         ]
+        
+        # Verify workflow based on dashboard pattern from:
+        # Reference: test_dashboard_workflow.py
         
         # Select areas
         select_button = self.wait.until(
@@ -46,24 +40,34 @@ class TestServiceAreaIntegration:
 
     def test_distance_calculation_integration(self):
         """Test distance calculation with backend integration"""
-        # Setup mock distance calculation
-        self.mock_services.area_service.calculate_distance.return_value = 42.5
+        # Setup mock data
+        self.mock_services.area_service.calculate_distance.return_value = {
+            "total_miles": 150,
+            "route_segments": [
+                {"start": "A1", "end": "A2", "distance": 75},
+                {"start": "A2", "end": "A3", "distance": 75}
+            ]
+        }
         
-        # Input locations
-        origin = self.wait.until(
-            EC.presence_of_element_located((By.ID, "origin-point"))
+        # Select multiple areas
+        area_list = self.wait.until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, "area-item"))
         )
-        origin.send_keys("Location A")
+        for area in area_list[:2]:
+            area.click()
+            
+        # Click calculate button
+        calc_button = self.driver.find_element(By.ID, "calculate-distance")
+        calc_button.click()
         
-        dest = self.driver.find_element(By.ID, "destination-point")
-        dest.send_keys("Location B")
-        
-        # Calculate
-        self.driver.find_element(By.ID, "calculate-distance").click()
+        # Verify calculation results
+        results = self.wait.until(
+            EC.presence_of_element_located((By.CLASS_NAME, "distance-results"))
+        )
+        assert "150 miles" in results.text
         
         # Verify backend call
         assert self.mock_services.area_service.calculate_distance.called
-        assert "42.5" in self.driver.find_element(By.ID, "distance-result").text
 
     def test_grid_data_integration(self):
         """Test grid data integration with backend"""
@@ -144,3 +148,19 @@ class TestServiceAreaIntegration:
             EC.presence_of_all_elements_located((By.CLASS_NAME, "area-item"))
         )
         assert len(area_list) > 0
+
+    def test_grid_operations(self):
+        """Test grid operations with error handling"""
+        # Reference existing implementation:
+        ```python:tests/integration/ui/service_area/test_service_area_integration.py
+        startLine: 95
+        endLine: 118
+        ```
+        
+    def test_error_handling(self):
+        """Test error handling scenarios"""
+        # Reference existing implementation:
+        ```python:tests/integration/ui/service_area/test_service_area_integration.py
+        startLine: 120
+        endLine: 150
+        ```

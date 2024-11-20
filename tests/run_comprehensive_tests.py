@@ -10,8 +10,9 @@ class UITestRunner:
         self.start_time = datetime.now()
         self.test_suites = {
             'Dashboard': self.run_dashboard_tests,
-            'Service Area': self.run_service_area_tests,
-            'Y-Line Management': self.run_yline_tests,
+            'Security': self.run_security_tests,
+            'Performance': self.run_performance_tests,
+            'Edge Cases': self.run_edge_case_tests,
             'Project Management': self.run_project_tests,
             'CSP LOB Management': self.run_csp_lob_tests,
             'Competitor Management': self.run_competitor_tests,

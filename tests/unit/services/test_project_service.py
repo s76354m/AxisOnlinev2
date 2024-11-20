@@ -1,9 +1,13 @@
 """Unit tests for Project Service"""
 import pytest
+import logging
+from unittest.mock import Mock, patch
 from app.services.project_service import ProjectService
 from app.schemas.project import ProjectCreate, ProjectUpdate
 from app.core.error_handler import AppError
 from sqlalchemy.exc import IntegrityError
+
+logging.basicConfig(level=logging.INFO)
 
 class TestProjectCreation:
     @pytest.fixture(autouse=True)

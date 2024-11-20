@@ -4,15 +4,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from tests.ui.base_test import BaseUITest
+import logging
 
-class TestServiceAreaPerformance:
-    @pytest.fixture(autouse=True)
-    def setup(self, selenium_driver, mock_services):
-        self.driver = selenium_driver
-        self.wait = WebDriverWait(self.driver, 10)
-        self.mock_services = mock_services
+class TestServiceAreaPerformance(BaseUITest):
+    def setup(self):
         self.driver.get("/service-areas")
-
+        self.logger = logging.getLogger(__name__)
+        
     @pytest.mark.benchmark(
         group="service-area",
         min_rounds=10,
@@ -93,3 +92,20 @@ class TestServiceAreaPerformance:
             
         result = benchmark(export_operation)
         assert result < 5, f"Export operation ({result}s) exceeds 5s threshold" 
+
+    @pytest.mark.benchmark(group="service-area", min_rounds=10)
+    def test_grid_performance(self, benchmark):
+        """Test grid performance with error handling"""
+        def measure_operation():
+            try:
+                # Reference existing implementation:
+                ```python:tests/performance/test_service_area_performance.py
+                startLine: 26
+                endLine: 32
+                ```
+            except Exception as e:
+                self.logger.error(f"Performance test failed: {str(e)}")
+                return float('inf')
+                
+        result = benchmark(measure_operation)
+        assert result < 2, f"Operation time ({result}s) exceeds threshold" 

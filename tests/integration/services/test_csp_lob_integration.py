@@ -1,14 +1,16 @@
 """Integration tests for CSP LOB service"""
 import pytest
+from unittest.mock import Mock, patch
 from app.services.csp_lob_service import CSPLOBService
+from app.models.csp_lob import CSPLOB
 from app.schemas.csp_lob import CSPLOBCreate
-from app.models.csp_lob import CSPLOBStatus
 
-class TestCSPLOBWorkflow:
+@pytest.mark.integration
+class TestCSPLOBIntegration:
     @pytest.fixture(autouse=True)
-    def setup(self, db_session):
-        self.service = CSPLOBService(db_session)
-        self.project_id = self._create_test_project(db_session)
+    def setup(self, mock_dependencies):
+        self.service = CSPLOBService()
+        self.mock_db = mock_dependencies
     
     def test_complete_csp_lob_workflow(self):
         """Test complete CSP LOB workflow"""

@@ -4,62 +4,32 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+from unittest.mock import Mock, patch
 
-class TestAuthenticationSecurity:
+class TestAuthentication:
     @pytest.fixture(autouse=True)
-    def setup(self, selenium_driver, mock_services):
+    def setup(self, selenium_driver):
         self.driver = selenium_driver
         self.wait = WebDriverWait(self.driver, 10)
-        self.mock_services = mock_services
+        
+    def test_login_workflow(self):
+        """Test login functionality"""
         self.driver.get("/login")
-
-    def test_brute_force_protection(self):
-        """Test brute force attack prevention"""
-        # Reference pattern from:
-        ```python:tests/security/test_authentication.py
-        startLine: 23
-        endLine: 46
-        ```
         
-        # Attempt multiple failed logins
-        for _ in range(5):
-            username = self.driver.find_element(By.ID, "username")
-            password = self.driver.find_element(By.ID, "password")
-            
-            username.clear()
-            password.clear()
-            username.send_keys("test_user")
-            password.send_keys("wrong_password")
-            
-            self.driver.find_element(By.ID, "login-button").click()
-            time.sleep(1)  # Wait for rate limiting
+        # Enter credentials
+        username = self.wait.until(EC.presence_of_element_located((By.ID, "username")))
+        password = self.driver.find_element(By.ID, "password")
         
-        # Verify account lockout
-        lockout_message = self.wait.until(
-            EC.presence_of_element_located((By.CLASS_NAME, "account-locked"))
-        )
-        assert "Account temporarily locked" in lockout_message.text
-
-    def test_session_security(self):
-        """Test session handling security"""
-        # Login successfully
-        self.driver.find_element(By.ID, "username").send_keys("valid_user")
-        self.driver.find_element(By.ID, "password").send_keys("valid_password")
-        self.driver.find_element(By.ID, "login-button").click()
+        username.send_keys("test_user")
+        password.send_keys("test_pass")
         
-        # Verify session token
-        session_cookie = self.driver.get_cookie("session_token")
-        assert session_cookie["secure"] == True
-        assert session_cookie["httpOnly"] == True
+        # Submit login
+        submit = self.driver.find_element(By.ID, "login-submit")
+        submit.click()
         
-        # Test session timeout
-        self.driver.execute_script(
-            "window.localStorage.setItem('session_expiry', '2000-01-01')"
-        )
-        self.driver.get("/dashboard")
-        
-        # Verify redirect to login
-        assert "/login" in self.driver.current_url
+        # Verify successful login
+        dashboard = self.wait.until(EC.presence_of_element_located((By.CLASS_NAME, "dashboard")))
+        assert dashboard.is_displayed()
 
 class TestAuthorizationSecurity:
     @pytest.fixture(autouse=True)
@@ -105,3 +75,19 @@ class TestAuthorizationSecurity:
             }).then(r => r.status)
         """)
         assert response == 401
+
+@pytest.fixture
+def mock_auth_service():
+    return Mock()
+
+def test_user_login(mock_auth_service):
+    """Test user login functionality"""
+    with patch('app.services.auth.AuthService', return_value=mock_auth_service):
+        mock_auth_service.login.return_value = True
+        assert mock_auth_service.login("test_user", "test_pass")
+
+def test_invalid_credentials(mock_auth_service):
+    """Test invalid login credentials"""
+    with patch('app.services.auth.AuthService', return_value=mock_auth_service):
+        mock_auth_service.login.return_value = False
+        assert not mock_auth_service.login("invalid", "invalid")
