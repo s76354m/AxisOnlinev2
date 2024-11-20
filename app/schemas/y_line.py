@@ -12,6 +12,7 @@ class YLineBase(BaseModel):
     estimated_value: Optional[float] = Field(None, ge=0)
     actual_value: Optional[float] = Field(None, ge=0)
     status: Optional[YLineStatus] = YLineStatus.PENDING
+    notes: Optional[str] = None
 
 class YLineCreate(YLineBase):
     pass
@@ -25,6 +26,7 @@ class YLineUpdate(BaseModel):
     estimated_value: Optional[float] = Field(None, ge=0)
     actual_value: Optional[float] = Field(None, ge=0)
     status: Optional[YLineStatus] = None
+    notes: Optional[str] = None
 
 class YLineResponse(YLineBase):
     id: int
@@ -33,4 +35,4 @@ class YLineResponse(YLineBase):
     updated_at: Optional[datetime]
 
     class Config:
-        orm_mode = True 
+        from_attributes = True 

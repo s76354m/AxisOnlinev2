@@ -1,63 +1,64 @@
 import streamlit as st
 import pandas as pd
 from app.services.project_service import ProjectService
-from app.models.project import ProjectStatus, ProjectType
 
 def render_page(db_session):
     st.title("Project Management")
     
-    # Initialize services
-    project_service = ProjectService(db_session)
-    
-    # Create tabs for different views
-    tab1, tab2, tab3 = st.tabs(["Project List", "Add Project", "Reports"])
-    
-    with tab1:
-        render_project_list(project_service)
-    
-    with tab2:
-        render_add_project_form(project_service)
-    
-    with tab3:
-        render_project_reports(project_service)
+    try:
+        with st.spinner("Loading projects..."):
+            project_service = ProjectService(db_session)
+            
+            tab1, tab2 = st.tabs(["Project List", "Add Project"])
+            
+            with tab1:
+                render_project_list(project_service)
+            
+            with tab2:
+                render_add_project_form(project_service)
+                
+    except Exception as e:
+        st.error(f"Error loading project management: {str(e)}")
 
 def render_project_list(project_service):
-    st.header("Project List")
+    # Add New Project button
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        if st.button("➕ New Project", type="primary", key="new_project_btn"):
+            st.session_state.current_view = 'new_project'
+            st.rerun()
     
     # Filters
     col1, col2, col3 = st.columns(3)
     with col1:
-        status_filter = st.multiselect(
+        status_filter = st.selectbox(
             "Status",
-            options=[s.value for s in ProjectStatus]
+            ["All", "Active", "Inactive", "Pending"],
+            key="status_filter"
         )
     with col2:
-        type_filter = st.multiselect(
-            "Type",
-            options=[t.value for t in ProjectType]
-        )
-    with col3:
-        search = st.text_input("Search", "")
+        search = st.text_input("Search Projects", key="project_search")
     
-    # Get and display projects
-    projects = project_service.get_projects(
-        status_filter=status_filter,
-        type_filter=type_filter,
-        search=search
-    )
+    # Project Table
+    projects = project_service.get_projects(status=status_filter if status_filter != "All" else None)
     
     if projects:
-        df = pd.DataFrame(projects)
+        df = pd.DataFrame([{
+            "Project ID": p.ProjectID,
+            "Description": p.ProjectDesc,
+            "Status": p.Status,
+            "Analyst": p.Analyst,
+            "PM": p.PM,
+            "Last Updated": p.LastEditDate
+        } for p in projects])
+        
+        if search:
+            df = df[df.astype(str).apply(lambda x: x.str.contains(search, case=False)).any(axis=1)]
+        
         st.dataframe(
             df,
-            column_config={
-                "id": "Project ID",
-                "name": "Project Name",
-                "status": "Status",
-                "type": "Type",
-                "created_at": "Created Date"
-            },
-            hide_index=True
+            hide_index=True,
+            use_container_width=True
         )
     else:
         st.info("No projects found matching the criteria.")
@@ -65,37 +66,19 @@ def render_project_list(project_service):
 def render_add_project_form(project_service):
     st.header("Add New Project")
     
-    with st.form("add_project"):
+    with st.form("new_project_form"):
         name = st.text_input("Project Name")
-        status = st.selectbox("Status", options=[s.value for s in ProjectStatus])
-        type = st.selectbox("Type", options=[t.value for t in ProjectType])
-        description = st.text_area("Description")
+        status = st.selectbox("Status", ["Active", "Inactive", "Pending"])
+        service_area = st.text_input("Service Area")
         
-        submitted = st.form_submit_button("Add Project")
-        
-        if submitted:
+        if st.form_submit_button("Create Project"):
             try:
-                project_service.create_project(
-                    name=name,
-                    status=status,
-                    type=type,
-                    description=description
-                )
-                st.success("Project added successfully!")
+                project_service.create_project({
+                    "name": name,
+                    "status": status,
+                    "service_area": service_area
+                })
+                st.success("Project created successfully!")
+                st.rerun()
             except Exception as e:
-                st.error(f"Error adding project: {str(e)}")
-
-def render_project_reports(project_service):
-    st.header("Project Reports")
-    
-    # Status summary
-    status_summary = project_service.get_status_summary()
-    if status_summary:
-        st.subheader("Status Summary")
-        st.bar_chart(status_summary)
-    
-    # Type summary
-    type_summary = project_service.get_type_summary()
-    if type_summary:
-        st.subheader("Type Summary")
-        st.bar_chart(type_summary) 
+                st.error(f"Error creating project: {str(e)}")
