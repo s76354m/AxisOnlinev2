@@ -5,9 +5,11 @@ from datetime import datetime
 import getpass
 from sqlalchemy.exc import SQLAlchemyError
 from app.utils.db_monitor import DatabaseMonitor
+from app.utils.ui_error_handler import handle_db_operation
 
 db_monitor = DatabaseMonitor()
 
+@handle_db_operation("display_project_info")
 def display_project_info(project_id):
     """Display project information"""
     try:
@@ -158,3 +160,8 @@ def display_notes(project_id):
                 st.write(note['Notes'])
                 st.write(f"Category: {note['ProjectCategory']}")
                 st.write(f"Action Item: {'Yes' if note['ActionItem'] == 'Y' else 'No'}") 
+
+@handle_db_operation("update_project")
+def update_project_details(project_id, data):
+    update_project(project_id, data)
+    st.success("Project updated successfully!") 

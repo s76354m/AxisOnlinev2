@@ -1,0 +1,10 @@
+timeout: 10
+retry_count: 3
+performance_thresholds:
+  page_load: 3.0
+  api_response: 1.0
+  database_query: 0.5
+browser_config:
+  viewport_width: 1920
+  viewport_height: 1080
+  headless: true 

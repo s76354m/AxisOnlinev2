@@ -1,12 +1,16 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="axisonline",
+    name="SwarmV2",
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        "streamlit",
-        "pandas",
-        "numpy",
-    ],
+        'streamlit',
+        'pandas',
+        'plotly',
+        'sqlalchemy',
+        'pyodbc',
+        'pydantic',
+        'python-dotenv'
+    ]
 ) 
