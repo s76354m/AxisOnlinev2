@@ -1,54 +1,43 @@
+"""Main UI module for Axis Program Management"""
 import streamlit as st
-from app.ui.pages import (
-    project_management,
-    csp_lob_management,
-    competitor_management,
-    service_area_management,
-    y_line_management
-)
-from app.db.session import SessionLocal
-from app.core.config import settings
+from typing import Optional
+from app.ui.pages import PAGE_ROUTES
+from app.utils.session_manager import initialize_session_state
 
-def initialize_session_state():
-    """Initialize session state variables"""
-    if 'db_session' not in st.session_state:
-        st.session_state.db_session = SessionLocal()
-    if 'current_page' not in st.session_state:
-        st.session_state.current_page = "Projects"
+class AxisProgramUI:
+    def __init__(self):
+        initialize_session_state()
+        self.setup_page_config()
+    
+    def setup_page_config(self):
+        st.set_page_config(
+            page_title="Axis Program",
+            layout="wide",
+            initial_sidebar_state="expanded"
+        )
+    
+    def render_navigation(self):
+        st.sidebar.title("Navigation")
+        return st.sidebar.selectbox(
+            "Select Page",
+            list(PAGE_ROUTES.keys())
+        )
+
+    def run(self):
+        try:
+            selection = self.render_navigation()
+            if selection in PAGE_ROUTES:
+                PAGE_ROUTES[selection]()
+            else:
+                st.error("Page not found")
+        except Exception as e:
+            st.error(f"UI Error: {str(e)}")
+            if st.button("Retry"):
+                st.experimental_rerun()
 
 def main():
-    st.set_page_config(
-        page_title=settings.PROJECT_NAME,
-        page_icon="🏢",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
-
-    initialize_session_state()
-
-    # Sidebar navigation
-    with st.sidebar:
-        st.title("Navigation")
-        selected_page = st.radio(
-            "Select Page",
-            ["Projects", "CSP LOB", "Competitors", "Service Areas", "Y-Line"]
-        )
-        
-        st.divider()
-        st.markdown("### User Info")
-        st.text(f"Connected to: {settings.DB_NAME}")
-
-    # Main content area
-    if selected_page == "Projects":
-        project_management.render_page(st.session_state.db_session)
-    elif selected_page == "CSP LOB":
-        csp_lob_management.render_page(st.session_state.db_session)
-    elif selected_page == "Competitors":
-        competitor_management.render_page(st.session_state.db_session)
-    elif selected_page == "Service Areas":
-        service_area_management.render_page(st.session_state.db_session)
-    elif selected_page == "Y-Line":
-        y_line_management.render_page(st.session_state.db_session)
+    app = AxisProgramUI()
+    app.run()
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -1,46 +1,44 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
-from app.core.config import settings
+from sqlalchemy.engine import Engine
+from contextlib import contextmanager
+from typing import Generator
 import logging
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-try:
-    # Create engine using Windows Authentication
+def create_db_engine() -> Engine:
+    connection_string = "mssql+pyodbc:///?odbc_connect=DRIVER={ODBC Driver 17 for SQL Server};SERVER=DESKTOP-PJTAP42\\SQLEXPRESS;DATABASE=ndar;Trusted_Connection=yes;"
     engine = create_engine(
-        settings.DATABASE_URL,
-        echo=settings.DB_ECHO,
+        connection_string,
         pool_pre_ping=True,
-        pool_recycle=3600,
-        fast_executemany=True
+        pool_recycle=3600
     )
+    return engine
 
-    # Test the connection
-    with engine.connect() as connection:
-        logger.info("Successfully connected to database")
-
-except Exception as e:
-    logger.error(f"Error connecting to database: {str(e)}")
-    raise
-
-# Create session factory
+engine = create_db_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-def get_db():
-    """Dependency for getting database sessions"""
+@contextmanager
+def get_db() -> Generator:
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-def init_db():
-    """Initialize database with required tables"""
-    from app.db.base import Base  # Import all models here
+# Engine event listeners
+@event.listens_for(Engine, "connect")
+def connect(dbapi_connection, connection_record):
+    logger.info("Database connection established")
+
+@event.listens_for(Engine, "engine_connect")
+def ping_connection(connection, branch):
+    if branch:
+        return
+
     try:
-        Base.metadata.create_all(bind=engine)
-        logger.info("Database tables created successfully")
+        connection.scalar(text("SELECT 1"))
     except Exception as e:
-        logger.error(f"Error creating database tables: {str(e)}")
-        raise 
+        logger.error(f"Database connection error: {str(e)}")
+        raise

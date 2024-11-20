@@ -1,0 +1,25 @@
+browsers:
+  - chrome
+  - firefox
+  - edge
+
+viewport_sizes:
+  mobile: [375, 812]
+  tablet: [768, 1024]
+  desktop: [1920, 1080]
+
+timeouts:
+  page_load: 10
+  element_wait: 5
+  animation: 1
+
+test_data:
+  base_url: "http://localhost:8501"
+  admin_user: "admin@test.com"
+  admin_pass: "test123"
+
+reporting:
+  screenshots: true
+  video: false
+  html_report: true
+  junit_report: true 
