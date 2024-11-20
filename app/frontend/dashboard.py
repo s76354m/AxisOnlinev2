@@ -21,7 +21,7 @@ def display_dashboard():
         pending_projects = [p for p in all_projects if p.Status == "Pending"]
         on_hold_projects = [p for p in all_projects if p.Status == "On Hold"]
         
-        # Display metrics in columns
+        # Display metrics
         col1, col2, col3, col4 = st.columns(4)
         with col1:
             st.metric("Active Projects", len(active_projects))
@@ -32,30 +32,36 @@ def display_dashboard():
         with col4:
             st.metric("Total Projects", len(all_projects))
         
-        # Project Status Distribution Chart
+        # Project Status Chart
         status_counts = pd.DataFrame([
             {"Status": p.Status, "Count": 1} for p in all_projects
         ]).groupby("Status").sum().reset_index()
         
-        fig = px.pie(status_counts, values="Count", names="Status", 
-                    title="Project Status Distribution")
+        fig = px.pie(
+            status_counts, 
+            values="Count", 
+            names="Status",
+            title="Project Status Distribution"
+        )
         st.plotly_chart(fig, use_container_width=True)
         
-        # Recent Projects Table
-        st.subheader("Recent Projects")
-        if all_projects:
-            recent_df = pd.DataFrame([{
+        # Recent Activity
+        st.subheader("Recent Activity")
+        recent_projects = sorted(
+            [p for p in all_projects if p.LastEditDate],
+            key=lambda x: x.LastEditDate,
+            reverse=True
+        )[:5]
+        
+        if recent_projects:
+            activity_df = pd.DataFrame([{
                 "Project ID": p.ProjectID,
-                "Description": p.ProjectDesc,
                 "Status": p.Status,
-                "Analyst": p.Analyst,
-                "PM": p.PM,
-                "Last Updated": p.LastEditDate
-            } for p in all_projects[:5]])
-            st.dataframe(recent_df, hide_index=True)
-        else:
-            st.info("No projects found")
+                "Last Updated": p.LastEditDate.strftime("%Y-%m-%d %H:%M"),
+                "Updated By": getattr(p, "LastEditMSID", "Unknown")
+            } for p in recent_projects])
+            st.dataframe(activity_df, hide_index=True)
             
     except Exception as e:
         logger.error(f"Error displaying dashboard: {str(e)}")
-        st.error("Error loading dashboard metrics")
+        st.error("Error loading dashboard")
